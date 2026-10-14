@@ -1,18 +1,19 @@
 {
-  "name": "Road Iron",
-  "short_name": "Road Iron",
-  "description": "NOS, used and vintage automotive parts",
-  "start_url": "/",
+  "id": "/",
+  "name": "ROAD IRON — Auto Parts",
+  "short_name": "ROAD IRON",
+  "description": "Shop NOS, used and hard-to-find automotive parts.",
+  "start_url": "/?source=app",
   "scope": "/",
   "display": "standalone",
   "background_color": "#101112",
   "theme_color": "#101112",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
