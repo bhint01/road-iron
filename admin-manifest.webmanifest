@@ -1,0 +1,19 @@
+{
+  "id": "/admin.html",
+  "name": "ROAD IRON Admin",
+  "short_name": "RI Admin",
+  "description": "Private ROAD IRON store administration",
+  "start_url": "/admin.html?source=admin-app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101112",
+  "theme_color": "#101112",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
