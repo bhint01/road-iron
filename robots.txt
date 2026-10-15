@@ -1,6 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /seller.html
-Disallow: /messages.html
 Sitemap: https://road-iron.com/sitemap.xml
