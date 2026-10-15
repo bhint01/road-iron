@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Auto Part | ROAD IRON</title><meta name="description" content="View automotive parts, NOS and used classic car parts on ROAD IRON.">
+<meta name="robots" content="noindex,follow"><meta name="theme-color" content="#101112"><link rel="icon" href="/icon.svg">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>*{box-sizing:border-box}body{margin:0;background:#101112;color:#f2f2ef;font:16px Arial,sans-serif}header,main,footer{max-width:960px;margin:auto;padding:22px}header{border-bottom:1px solid #34383b}a{color:#e0a12b}header a{text-decoration:none;font-weight:bold;letter-spacing:2px;font-size:21px}.panel{background:#191b1d;border:1px solid #34383b;border-radius:14px;padding:22px;margin:25px 0}h1{font-size:clamp(26px,5vw,42px)}.gallery{display:flex;gap:10px;flex-wrap:wrap}.gallery img{width:min(100%,420px);max-height:380px;object-fit:contain;border-radius:9px;background:#272727}.muted{color:#aaa;line-height:1.6}.price{font-size:29px;font-weight:bold}.btn{display:inline-block;border:0;background:#e0a12b;color:#111;padding:14px 20px;border-radius:8px;text-decoration:none;font-weight:bold;cursor:pointer;margin:8px 8px 8px 0}.row{display:flex;flex-wrap:wrap;gap:20px}.row>div{flex:1;min-width:240px}footer{color:#aaa}</style></head>
+<body><header><a href="/">ROAD IRON</a> <span style="float:right"><a href="/#inventory" style="font-size:14px;letter-spacing:0">Shop Parts</a></span></header>
+<main><div id="content" class="panel"><p>Loading part details...</p></div><p><a href="/">← Back to ROAD IRON</a></p></main>
+<footer>ROAD IRON · NOS and used automotive parts</footer>
+<script>
+const sb=supabase.createClient('https://sblnblmcvyvmllyvrnbb.supabase.co','sb_publishable_eV80ZW_U97yqGquu4bFL0A_i4S0hCia');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function run(){
+ const id=new URLSearchParams(location.search).get('id'),el=document.getElementById('content');
+ if(!id||!/^[a-f0-9-]{36}$/i.test(id)){el.textContent='Invalid part link.';return}
+ const {data:p,error}=await sb.from('products').select('*').eq('id',id).eq('status','active').maybeSingle();
+ if(error||!p){el.innerHTML='<h1>Part unavailable</h1><p>This listing is no longer available.</p>';return}
+ const {data:photos}=await sb.from('product_photos').select('storage_path').eq('product_id',id).order('sort_order');
+ const images=(photos||[]).map(x=>sb.storage.from('product-images').getPublicUrl(x.storage_path).data.publicUrl);
+ const fit=[p.year,p.make,p.model].filter(Boolean).join(' ');
+ const ship=p.shipping_type==='free'?'Free shipping':p.shipping_type==='local_pickup'?'Local pickup only':p.shipping_type==='freight_quote'?'Freight quote required':'Carrier-calculated shipping';
+ document.title=p.name+' | ROAD IRON';
+ document.querySelector('meta[name=description]').content=[p.name,p.part_number?'Part # '+p.part_number:'',fit,p.condition].filter(Boolean).join(' · ').slice(0,155);
+ el.innerHTML='<div class="row"><div><div class="gallery">'+images.map(u=>'<img src="'+esc(u)+'" alt="'+esc(p.name)+'" loading="lazy">').join('')+'</div></div><div><p class="muted">'+esc(p.category||'Automotive parts')+'</p><h1>'+esc(p.name)+'</h1><p class="muted">'+esc(fit)+'</p>'+(p.part_number?'<p><strong>Part number:</strong> '+esc(p.part_number)+'</p>':'')+'<p><strong>Condition:</strong> '+esc(p.condition||'Not specified')+'</p><p><strong>Shipping:</strong> '+esc(ship)+'</p><p><strong>Quantity available:</strong> '+Number(p.quantity||0)+'</p><div class="price">$'+Number(p.price||0).toFixed(2)+'</div><button id="add" class="btn">Add to Cart</button><button id="share" class="btn" style="background:#34383b;color:#fff">Share Part</button></div></div><h2>Description</h2><p class="muted">'+esc(p.description||'No additional description provided.')+'</p>';
+ document.getElementById('add').onclick=()=>{let cart=[];try{cart=JSON.parse(localStorage.getItem('roadIronCart')||'[]')}catch{}if(!cart.some(x=>x.id===id))cart.push({id:p.id,name:p.name,price:Number(p.price)});localStorage.setItem('roadIronCart',JSON.stringify(cart));location.href='/?cart=1'};
+ document.getElementById('share').onclick=async()=>{if(navigator.share){try{await navigator.share({title:document.title,url:location.href})}catch{}}else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);alert('Part link copied')}};
+}
+run();
+</script></body></html>
