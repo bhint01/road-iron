@@ -38,3 +38,29 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 4. Update this log after every substantive change or successful test.
 5. Never mark a feature broken merely because its test result is missing.
 6. Do not publish passwords, personal information, tokens, confirmation IDs or payment secrets in this public repository.
+
+## 2026-10-19 SELLER DEVELOPMENT UPDATE
+- Supabase migrations applied: self-registration for pending sellers, private draft submission inserts, and private seller photo upload permissions. Policy existence verified in database; browser end-to-end testing remains outstanding.
+- GitHub branch seller-marketplace-automation updates seller.html to allow registered pending sellers to save private drafts with photos. Branch is NOT merged or deployed.
+- Automatic public listing, Stripe Connect onboarding, seller payout routing, shipping for third-party orders and complete end-to-end tests remain NOT IMPLEMENTED. Do not enable third-party checkout.
+
+## 2026-10-20 PAYMENT LEDGER UPDATE
+- Applied Supabase seller_transfer_ledger_safe_staging migration: internal seller_transfers ledger with unique (order_id,seller_id), commission arithmetic check, idempotency fields, RLS and no anon/authenticated table grants. Verified permissions and RLS.
+- Stripe transfer execution is intentionally NOT enabled. No third-party live checkout, automatic listing publication, shipping or payout/refund/dispute workflows are ready. These require further implementation and end-to-end testing.
+
+## 2026-10-20 SELLER PORTAL VALIDATION FIX
+- Corrected seller.html submitItem() to allow pending registered sellers to save drafts; previous check incorrectly required approved status. Matched seller name/title validation to Supabase RLS. Stripe account ROAD IRON connection is available but live checkout not activated.
+- Browser integration tests still required. Seller listing public publishing, seller-specific shipping, Stripe transfers/refunds/disputes still not complete.
+
+## 2026-10-20 AUTOMATIC NONPUBLIC PRODUCT STAGING
+- Applied migration stage_seller_submissions_as_nonpublic_products. Each new seller_submissions pending row triggers creation of a linked products row with status=draft, seller_id and 0.08 commission; staged_product_id links submission to product. Trigger function is not callable by anon/authenticated.
+- Verified zero active third-party products. This is private staging ONLY: seller photos, active publishing, checkout transfers and seller fulfillment still need implementation and end-to-end testing.
+
+## Seller shipping backend staged
+Applied migration seller_fulfillment_tracking_private_ledger: private seller_fulfillments records, per-seller read/update RLS, tracking validation and immutable fulfillment identity. Verified policies. This is backend-only: rows must be created when eligible paid marketplace orders are processed, and the seller UI must be connected. Third-party checkout remains gated by prevent_unready_marketplace_orders_trigger.
+
+## Seller fulfillment hardening
+Applied migration enforce_seller_tracking_update_only. Authenticated sellers may update only carrier, tracking_number, status and shipped_at. Trigger enforces transition from awaiting_shipment to shipped with tracking. Verified column-level UPDATE grants. This does not enable seller checkout or automatically create fulfillment records.
+
+## Marketplace publication launch gate
+Applied migration prevent_unverified_seller_product_publication. Database trigger blocks setting any seller-owned product to active until safe marketplace payments and shipping are ready. Verified trigger enabled and zero active seller products. First-party products unaffected. This gate must be removed or replaced with verified eligibility checks as part of the tested launch.
