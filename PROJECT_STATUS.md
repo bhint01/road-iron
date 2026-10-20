@@ -43,3 +43,7 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Supabase migrations applied: self-registration for pending sellers, private draft submission inserts, and private seller photo upload permissions. Policy existence verified in database; browser end-to-end testing remains outstanding.
 - GitHub branch seller-marketplace-automation updates seller.html to allow registered pending sellers to save private drafts with photos. Branch is NOT merged or deployed.
 - Automatic public listing, Stripe Connect onboarding, seller payout routing, shipping for third-party orders and complete end-to-end tests remain NOT IMPLEMENTED. Do not enable third-party checkout.
+
+## 2026-10-20 PAYMENT LEDGER UPDATE
+- Applied Supabase seller_transfer_ledger_safe_staging migration: internal seller_transfers ledger with unique (order_id,seller_id), commission arithmetic check, idempotency fields, RLS and no anon/authenticated table grants. Verified permissions and RLS.
+- Stripe transfer execution is intentionally NOT enabled. No third-party live checkout, automatic listing publication, shipping or payout/refund/dispute workflows are ready. These require further implementation and end-to-end testing.
