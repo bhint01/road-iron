@@ -12,7 +12,7 @@ Development only. Seller private drafts and Stripe Connect onboarding groundwork
 - [ ] Validate price, condition, inventory, prohibited goods, shipping origin, package weight and dimensions server-side.
 - [ ] Prevent seller products from reaching existing first-party checkout until marketplace checkout is fully operational.
 - [ ] Implement multi-seller order splitting and correct shipping rate per seller/origin, or explicitly restrict carts to one seller.
-- [ ] Compute 8% seller fee only on item subtotal, excluding shipping and taxes; calculate money in integer cents.
+- [ ] Wire 8% merchandise-only commission into checkout, ledger, and transfers; quote helper `public.marketplace_commission_quote(bigint)` is deployed and tested with $100 -> $8 fee / $92 seller merchandise proceeds, but not yet integrated into a transaction.
 - [ ] Transfer funds automatically with Stripe Connect after verified payment, using idempotent transfer keys and an internal ledger.
 - [ ] Ensure third-party orders never trigger ROAD IRON's automatic Shippo label purchase.
 - [ ] Seller fulfillment dashboard: shipment confirmation, carrier and tracking, buyer updates and deadlines.
