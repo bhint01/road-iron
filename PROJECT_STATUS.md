@@ -47,3 +47,7 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 ## 2026-10-20 PAYMENT LEDGER UPDATE
 - Applied Supabase seller_transfer_ledger_safe_staging migration: internal seller_transfers ledger with unique (order_id,seller_id), commission arithmetic check, idempotency fields, RLS and no anon/authenticated table grants. Verified permissions and RLS.
 - Stripe transfer execution is intentionally NOT enabled. No third-party live checkout, automatic listing publication, shipping or payout/refund/dispute workflows are ready. These require further implementation and end-to-end testing.
+
+## 2026-10-20 SELLER PORTAL VALIDATION FIX
+- Corrected seller.html submitItem() to allow pending registered sellers to save drafts; previous check incorrectly required approved status. Matched seller name/title validation to Supabase RLS. Stripe account ROAD IRON connection is available but live checkout not activated.
+- Browser integration tests still required. Seller listing public publishing, seller-specific shipping, Stripe transfers/refunds/disputes still not complete.
