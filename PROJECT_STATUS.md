@@ -61,3 +61,6 @@ Applied migration seller_fulfillment_tracking_private_ledger: private seller_ful
 
 ## Seller fulfillment hardening
 Applied migration enforce_seller_tracking_update_only. Authenticated sellers may update only carrier, tracking_number, status and shipped_at. Trigger enforces transition from awaiting_shipment to shipped with tracking. Verified column-level UPDATE grants. This does not enable seller checkout or automatically create fulfillment records.
+
+## Marketplace publication launch gate
+Applied migration prevent_unverified_seller_product_publication. Database trigger blocks setting any seller-owned product to active until safe marketplace payments and shipping are ready. Verified trigger enabled and zero active seller products. First-party products unaffected. This gate must be removed or replaced with verified eligibility checks as part of the tested launch.
