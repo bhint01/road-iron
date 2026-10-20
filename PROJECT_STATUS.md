@@ -38,3 +38,8 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 4. Update this log after every substantive change or successful test.
 5. Never mark a feature broken merely because its test result is missing.
 6. Do not publish passwords, personal information, tokens, confirmation IDs or payment secrets in this public repository.
+
+## 2026-10-19 SELLER DEVELOPMENT UPDATE
+- Supabase migrations applied: self-registration for pending sellers, private draft submission inserts, and private seller photo upload permissions. Policy existence verified in database; browser end-to-end testing remains outstanding.
+- GitHub branch seller-marketplace-automation updates seller.html to allow registered pending sellers to save private drafts with photos. Branch is NOT merged or deployed.
+- Automatic public listing, Stripe Connect onboarding, seller payout routing, shipping for third-party orders and complete end-to-end tests remain NOT IMPLEMENTED. Do not enable third-party checkout.
