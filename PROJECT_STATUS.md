@@ -51,3 +51,7 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 ## 2026-10-20 SELLER PORTAL VALIDATION FIX
 - Corrected seller.html submitItem() to allow pending registered sellers to save drafts; previous check incorrectly required approved status. Matched seller name/title validation to Supabase RLS. Stripe account ROAD IRON connection is available but live checkout not activated.
 - Browser integration tests still required. Seller listing public publishing, seller-specific shipping, Stripe transfers/refunds/disputes still not complete.
+
+## 2026-10-20 AUTOMATIC NONPUBLIC PRODUCT STAGING
+- Applied migration stage_seller_submissions_as_nonpublic_products. Each new seller_submissions pending row triggers creation of a linked products row with status=draft, seller_id and 0.08 commission; staged_product_id links submission to product. Trigger function is not callable by anon/authenticated.
+- Verified zero active third-party products. This is private staging ONLY: seller photos, active publishing, checkout transfers and seller fulfillment still need implementation and end-to-end testing.
