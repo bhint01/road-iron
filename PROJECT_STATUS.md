@@ -55,3 +55,6 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 ## 2026-10-20 AUTOMATIC NONPUBLIC PRODUCT STAGING
 - Applied migration stage_seller_submissions_as_nonpublic_products. Each new seller_submissions pending row triggers creation of a linked products row with status=draft, seller_id and 0.08 commission; staged_product_id links submission to product. Trigger function is not callable by anon/authenticated.
 - Verified zero active third-party products. This is private staging ONLY: seller photos, active publishing, checkout transfers and seller fulfillment still need implementation and end-to-end testing.
+
+## Seller shipping backend staged
+Applied migration seller_fulfillment_tracking_private_ledger: private seller_fulfillments records, per-seller read/update RLS, tracking validation and immutable fulfillment identity. Verified policies. This is backend-only: rows must be created when eligible paid marketplace orders are processed, and the seller UI must be connected. Third-party checkout remains gated by prevent_unready_marketplace_orders_trigger.
