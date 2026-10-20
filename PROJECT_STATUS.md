@@ -58,3 +58,6 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 
 ## Seller shipping backend staged
 Applied migration seller_fulfillment_tracking_private_ledger: private seller_fulfillments records, per-seller read/update RLS, tracking validation and immutable fulfillment identity. Verified policies. This is backend-only: rows must be created when eligible paid marketplace orders are processed, and the seller UI must be connected. Third-party checkout remains gated by prevent_unready_marketplace_orders_trigger.
+
+## Seller fulfillment hardening
+Applied migration enforce_seller_tracking_update_only. Authenticated sellers may update only carrier, tracking_number, status and shipped_at. Trigger enforces transition from awaiting_shipment to shipped with tracking. Verified column-level UPDATE grants. This does not enable seller checkout or automatically create fulfillment records.
