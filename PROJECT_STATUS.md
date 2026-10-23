@@ -38,3 +38,8 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 4. Update this log after every substantive change or successful test.
 5. Never mark a feature broken merely because its test result is missing.
 6. Do not publish passwords, personal information, tokens, confirmation IDs or payment secrets in this public repository.
+
+## Auction subdirectory preparation — 2026-10-23
+- Prepared customer-only files for /auctions/ from the dedicated private auction repository on a review branch. Store homepage, CNAME, service worker and payment code are unchanged.
+- Private-repository Pages requires an upgrade on the owner's current plan (confirmed by screenshot); the existing public store Pages deployment is the chosen hosting path.
+- Dedicated auction Auth callbacks, Pages source settings and deployed browser/email flows remain to be configured or verified. No real auction or payment launch is claimed.
