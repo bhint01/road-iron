@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Create an Auction | Road Iron Preview</title><meta name="robots" content="noindex,nofollow">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{background:#101112;color:#f2f2ef;font:16px/1.5 Arial,sans-serif;margin:0}main{max-width:780px;margin:32px auto;padding:0 20px 70px}a{color:#e0a12b}h1{margin-bottom:4px}.notice{background:#292315;border:1px solid #806123;border-radius:10px;padding:15px;margin:22px 0}form{display:grid;gap:16px}label{display:grid;gap:6px;font-weight:bold}input,textarea,select{font:inherit;width:100%;padding:12px;color:#fff;background:#1a1c1e;border:1px solid #444;border-radius:8px}textarea{min-height:110px}button{font:inherit;font-weight:bold;background:#e0a12b;color:#111;border:0;border-radius:8px;padding:12px 20px}button:disabled{opacity:.55}small,.muted{color:#bbb}fieldset{border:1px solid #444;border-radius:8px;display:grid;gap:14px}legend{font-weight:bold}#summary{white-space:pre-wrap;background:#1a1c1e;border-radius:8px;padding:16px;overflow-wrap:anywhere}
+</style></head><body><main><a href="auctions.html">← Auction preview</a><h1>Create an auction</h1><p class="muted">Seller listing form · development preview</p>
+<div class="notice"><strong>No listings will be published.</strong> This form validates a draft locally. Photos are previewed on your device only; nothing is uploaded or saved to Road Iron.</div>
+<p id="account" role="status">Checking your Road Iron account…</p>
+<form id="form">
+<label>Item title<input name="title" required minlength="5" maxlength="140" placeholder="1979 Cutlass Supreme OEM trim"></label>
+<label>Description<textarea name="description" required minlength="20" maxlength="10000" placeholder="Condition, fitment, part numbers, defects, what's included"></textarea></label>
+<label>Category<select name="category" required><option value="">Choose category</option><option>Auto Parts</option><option>Classic Vehicles</option><option>Tools</option><option>Equipment</option><option>Motorcycles</option><option>Other</option></select></label>
+<label>Condition<select name="condition" required><option value="">Choose condition</option><option>New Old Stock (NOS)</option><option>New</option><option>Used</option><option>For Parts / Repair</option></select></label>
+<fieldset><legend>Pricing (USD)</legend>
+<label>Starting bid<input name="opening_bid" type="number" min="0.01" max="9999999999.99" step="0.01" required></label>
+<label>Minimum bid increase<input name="minimum_increment" type="number" min="0.01" max="9999999999.99" step="0.01" value="1.00" required></label>
+<label>Reserve price (optional)<input name="reserve_price" type="number" min="0.01" max="9999999999.99" step="0.01" placeholder="Leave blank for no reserve"></label>
+</fieldset>
+<label>Auction duration<select name="duration" required><option value="">Choose duration</option><option value="1">1 day</option><option value="3">3 days</option><option value="5">5 days</option><option value="7">7 days</option><option value="10">10 days</option></select></label>
+<label>Item photos (preview only, maximum 10)<input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple></label><small>Photo uploads, shipping/pickup choices, seller approval and publication are not connected yet.</small>
+<button type="submit">Review draft (does not publish)</button></form>
+<h2>Draft review</h2><div id="summary" role="status">Complete the form to review the auction details.</div>
+</main><script>
+const client=supabase.createClient('https://sblnblmcvyvmllyvrnbb.supabase.co','sb_publishable_eV80ZW_U97yqGquu4bFL0A_i4S0hCia');
+async function checkAccount(){try{const {data,error}=await client.auth.getUser();document.getElementById('account').textContent=error?'Account verification unavailable':data?.user?'Signed in to Road Iron. Auction publishing is not enabled.':'Not signed in. You can review a sample draft, but publishing will require seller sign-in.'}catch{document.getElementById('account').textContent='Account verification unavailable';}}
+checkAccount();
+const form=document.getElementById('form');
+form.addEventListener('submit',event=>{
+ event.preventDefault();if(!form.reportValidity())return;
+ const data=new FormData(form),money=name=>Number(data.get(name));
+ const start=money('opening_bid'),increment=money('minimum_increment'),reserve=data.get('reserve_price')===''?null:money('reserve_price');
+ const validAmount=n=>Number.isFinite(n)&&n>0&&Number.isSafeInteger(Math.round(n*100))&&Math.abs(n*100-Math.round(n*100))<1e-7;
+ const summary=document.getElementById('summary');
+ if(!validAmount(start)||!validAmount(increment)||(reserve!==null&&!validAmount(reserve))){summary.textContent='Enter valid positive dollar amounts with no more than two decimal places.';return;}
+ if(reserve!==null&&reserve<start){summary.textContent='Reserve price cannot be lower than the starting bid.';return;}
+ const files=document.getElementById('photos').files;
+ if(files.length>10||Array.from(files).some(file=>!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>10*1024*1024)){summary.textContent='Select at most 10 JPG, PNG, or WebP photos, each no larger than 10 MB.';return;}
+ const details={title:String(data.get('title')).trim(),description:String(data.get('description')).trim(),category:data.get('category'),condition:data.get('condition'),opening_bid:start.toFixed(2),minimum_increment:increment.toFixed(2),reserve_price:reserve===null?'No reserve':reserve.toFixed(2),duration_days:Number(data.get('duration')),photos_selected:files.length,published:false};
+ if(details.title.length<5||details.description.length<20){summary.textContent='Please provide a longer title and description.';return;}
+ summary.textContent=JSON.stringify(details,null,2)+'\n\nPREVIEW ONLY — nothing saved or published.';
+});
+</script></body></html>
