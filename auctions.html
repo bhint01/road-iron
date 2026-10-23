@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Road Iron Auctions | Preview</title><meta name="robots" content="noindex,nofollow">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{color-scheme:dark;--bg:#101112;--panel:#1a1c1e;--gold:#e0a12b;--line:#34383b;--muted:#b8b8b8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#f2f2ef;font:16px/1.5 Arial,sans-serif}
+header{border-bottom:1px solid var(--line);padding:17px max(20px,calc((100vw - 1150px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{font-weight:900;letter-spacing:2px;font-size:24px}.logo span{color:var(--gold)}a{color:var(--gold)}header a{font-weight:bold;text-decoration:none}
+main{max-width:1150px;margin:auto;padding:32px 20px 70px}h1{font-size:clamp(34px,6vw,56px);margin:0}h2{margin:0 0 12px}.intro{color:var(--muted);max-width:750px}
+.notice{border:1px solid #806123;background:#2a2418;border-radius:12px;padding:14px 18px;margin:22px 0}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin:25px 0}input,select{padding:13px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:#fff;font:inherit}input{flex:2;min-width:200px}select{flex:1;min-width:180px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.card,.empty{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}.card img{width:100%;height:185px;object-fit:cover}.card .body{padding:18px}.muted{color:var(--muted)}.price{font-size:24px;font-weight:800;color:var(--gold)}.empty{padding:34px;text-align:center}.empty p{color:var(--muted)}.pill{font-size:12px;color:var(--gold);font-weight:bold;text-transform:uppercase;letter-spacing:1px}.button{display:inline-block;padding:10px 15px;background:var(--gold);color:#111;border-radius:8px;text-decoration:none;font-weight:bold}
+button{background:var(--gold);color:#111;padding:10px 15px;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}footer{border-top:1px solid var(--line);padding:20px;text-align:center;color:var(--muted)}
+</style></head><body>
+<header><div class="logo">ROAD <span>IRON</span> AUCTIONS</div><a href="index.html">Back to Marketplace</a></header>
+<main><div class="pill">Development preview · bidding disabled</div><h1>Find it. Bid on it. Own it.</h1>
+<p class="intro">Auctions for automotive parts, classic vehicles, equipment, tools, and hard-to-find inventory. Use your existing Road Iron account when secure bidding launches.</p>
+<div class="notice"><strong>Auctions are not live yet.</strong> This preview does not accept bids or payments. Listings will appear only after the secure auction database and checkout are tested.</div>
+<div class="controls"><input id="search" type="search" placeholder="Search auctions by title or category" aria-label="Search auctions"><select id="category" aria-label="Category"><option value="">All categories</option></select><select id="sort" aria-label="Sort"><option value="ending">Ending soon</option><option value="new">Newest first</option><option value="price">Lowest current bid</option></select></div>
+<div id="status" role="status" class="muted">Checking auction inventory…</div><div id="list" class="grid" aria-live="polite"></div>
+</main><footer>© Road Iron · <a href="index.html">Marketplace</a> · Auction features are under development.</footer>
+<script>
+const client=supabase.createClient('https://sblnblmcvyvmllyvrnbb.supabase.co','sb_publishable_eV80ZW_U97yqGquu4bFL0A_i4S0hCia');
+const list=document.getElementById('list'),status=document.getElementById('status');let lots=[];
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n)||0);
+const date=n=>new Date(n).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});
+function render(){const q=document.getElementById('search').value.toLowerCase().trim(),cat=document.getElementById('category').value,sort=document.getElementById('sort').value;
+let shown=lots.filter(x=>(!cat||x.category===cat)&&(!q||(x.title+' '+x.category+' '+x.description).toLowerCase().includes(q)));
+shown.sort((a,b)=>sort==='price'?(Number(a.current_bid??a.opening_bid)-Number(b.current_bid??b.opening_bid)):sort==='new'?(new Date(b.created_at)-new Date(a.created_at)):(new Date(a.ends_at)-new Date(b.ends_at)));
+list.replaceChildren();status.textContent=shown.length?shown.length+' auction listing(s)':'';
+if(!shown.length){const e=document.createElement('div');e.className='empty';const h=document.createElement('h2');h.textContent=lots.length?'No auctions match your search':'Auction listings are coming soon';const p=document.createElement('p');p.textContent=lots.length?'Try a different search or category.':'Our regular marketplace remains open while we finish secure auction bidding.';const a=document.createElement('a');a.className='button';a.href='index.html';a.textContent='Shop Road Iron';e.append(h,p,a);list.append(e);return;}
+for(const x of shown){const c=document.createElement('article');c.className='card';if(x.image_url&&/^https:\/\//.test(x.image_url)){const img=document.createElement('img');img.src=x.image_url;img.alt=x.title;img.loading='lazy';c.append(img)}const b=document.createElement('div');b.className='body';const tag=document.createElement('div');tag.className='pill';tag.textContent=x.category;const h=document.createElement('h2');h.textContent=x.title;const price=document.createElement('div');price.className='price';price.textContent=money(x.current_bid??x.opening_bid);const end=document.createElement('p');end.className='muted';end.textContent='Ends: '+date(x.ends_at);const btn=document.createElement('button');btn.disabled=true;btn.textContent='Bidding not yet enabled';b.append(tag,h,price,end,btn);c.append(b);list.append(c)}}
+async function load(){try{const {data,error}=await client.from('auction_lots').select('id,title,description,category,image_url,opening_bid,current_bid,ends_at,created_at').eq('status','active').order('ends_at',{ascending:true}).limit(100);
+if(error){lots=[];status.textContent='Auction inventory is not published yet.';}else{lots=data||[];status.textContent='';}
+const categories=[...new Set(lots.map(x=>x.category).filter(Boolean))].sort();const sel=document.getElementById('category');for(const category of categories){const opt=document.createElement('option');opt.value=category;opt.textContent=category;sel.append(opt)}render();}catch(_){lots=[];status.textContent='Auction inventory is not available yet.';render();}}
+['search','category','sort'].forEach(id=>document.getElementById(id).addEventListener('input',render));load();
+</script></body></html>
