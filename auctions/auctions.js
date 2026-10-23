@@ -61,18 +61,30 @@ function render(){
 }
 document.querySelector('#search').addEventListener('input',render);
 document.querySelector('#refresh').onclick=load;
+const signForm=document.querySelector('#signin-form'), signEmail=document.querySelector('#signin-email'), signMessage=document.querySelector('#signin-status'), signSend=document.querySelector('#signin-send');
 document.querySelector('#sign').onclick=async()=>{
- if(!db){alert('Authentication not configured yet');return;}
- const {data:{user}}=await db.auth.getUser();
- if(user){await db.auth.signOut();document.querySelector('#sign').textContent='Sign in';return;}
- const email=prompt('Email for secure sign-in link:');if(!email)return;
- const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
- alert(error?error.message:'Check your email for a sign-in link.');
+ if(!db||db.previewOnly)return;
+ if(!signedIn){signForm.hidden=false;signEmail.focus();return;}
+ try{const {error}=await db.auth.signOut();if(error)throw error;document.querySelector('#sign').textContent='Sign in';}
+ catch(error){signForm.hidden=false;signMessage.textContent='Could not sign out: '+error.message;}
+};
+signForm.onsubmit=async event=>{
+ event.preventDefault();
+ if(signSend.disabled)return;
+ const email=signEmail.value.trim();if(!email||!signEmail.checkValidity()){signEmail.reportValidity();return;}
+ signSend.disabled=true;signMessage.textContent='Sending sign-in link…';
+ try{
+  const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:new URL('./index.html',location.href).href}});
+  if(error)throw error;
+  signMessage.textContent='Check your email for a sign-in link. Open it in this browser.';
+ }catch(error){signMessage.textContent='Could not send sign-in link: '+error.message;}
+ finally{signSend.disabled=false;}
 };
 if(db)db.auth.onAuthStateChange((_event,session)=>{
- generation++;saved=new Set();watchlistReady=false;signedIn=Boolean(session);render();
+ generation++;saved=new Set();watchlistReady=false;signedIn=Boolean(session);if(session){signForm.hidden=true;signMessage.textContent='';}render();
  if(!db.previewOnly)document.querySelector('#sign').textContent=session?'Sign out':'Sign in';
  setTimeout(load,0);
 });
 load();
 setInterval(()=>{if(!document.hidden)load();},15000);
+

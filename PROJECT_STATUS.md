@@ -43,3 +43,7 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Prepared customer-only files for /auctions/ from the dedicated private auction repository on a review branch. Store homepage, CNAME, service worker and payment code are unchanged.
 - Private-repository Pages requires an upgrade on the owner's current plan (confirmed by screenshot); the existing public store Pages deployment is the chosen hosting path.
 - Dedicated auction Auth callbacks, Pages source settings and deployed browser/email flows remain to be configured or verified. No real auction or payment launch is claimed.
+
+## Inline customer sign-in fix — 2026-10-23
+- Replaced the homepage browser prompt with an inline email form that opens immediately and displays request progress, success and errors. Redirects target the configured auction index page.
+- Full isolated suite passed, including a regression check for opening the form and retry after an email request failure. Real email delivery and mobile session completion still require verification.
