@@ -47,3 +47,9 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 ## Inline customer sign-in fix — 2026-10-23
 - Replaced the homepage browser prompt with an inline email form that opens immediately and displays request progress, success and errors. Redirects target the configured auction index page.
 - Full isolated suite passed, including a regression check for opening the form and retry after an email request failure. Real email delivery and mobile session completion still require verification.
+
+## Seller gallery photo upload — 2026-10-23
+- Added one gallery photo per auction draft with local preview, image decoding, resizing to a 1600px maximum edge and JPEG re-encoding. JPG/PNG/WebP originals up to 20 MB are supported; stored JPEGs are capped at 5 MB. Photo visibility is disclosed in the seller form.
+- Installed dedicated auction storage bucket and seller-folder INSERT/SELECT policies; DELETE allows cleanup only for an unused own object. No overwrite policy is granted. Existing store storage was not changed.
+- Full isolated suite and photo validation/upload/resize regression checks passed. A rolled-back remote policy check allowed an own-folder object and rejected a different seller folder. Security advisor shows existing private-watchlist information and Auth leaked-password protection warning; remediation: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection .
+- Real phone gallery selection, actual Storage API transfer and saved image display still require end-to-end user verification. Payment features remain unavailable.
