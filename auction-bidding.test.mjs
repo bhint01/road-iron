@@ -2,7 +2,9 @@
 // Development-only adapter checks. These do not test database transactions.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createAuctionBidClient} from './auction-bidding.js';
+import {readFile} from 'node:fs/promises';
+const source = await readFile(new URL('./auction-bidding.js', import.meta.url), 'utf8');
+const {createAuctionBidClient} = await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 
 const id='123e4567-e89b-42d3-a456-426614174000';
 const key='123e4567-e89b-42d3-a456-426614174001';
