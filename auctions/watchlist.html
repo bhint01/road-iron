@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My watchlist | Road Iron Auctions</title>
+  <style>
+    :root{font:16px system-ui,sans-serif;color:#e9edf2;background:#101720}body{max-width:1000px;margin:auto;padding:24px}
+    nav{display:flex;gap:24px;flex-wrap:wrap}a{color:#ffad8f}h1{margin:28px 0 8px}.muted{color:#b7c3cd}
+    article{background:#202d39;border:1px solid #394c5e;border-radius:12px;padding:22px;margin:18px 0}article h2{margin-top:0}
+    button{font:inherit;background:#c94e2d;color:white;border:0;border-radius:7px;padding:12px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+    .notice{border-left:4px solid #c94e2d;padding:12px 18px;background:#25313e}#status{min-height:24px}
+  </style>
+</head>
+<body>
+  <nav aria-label="Auction navigation"><a href="index.html">Auctions</a><a href="seller.html">Seller dashboard</a><a href="account.html">My bids &amp; results</a></nav>
+  <h1>My watchlist</h1>
+  <p class="muted">Save auctions privately and follow their closing times and results.</p>
+  <p class="notice">Watching an auction does not place a bid. This list updates while you have it open.</p>
+  <button id="refresh" type="button">Refresh</button>
+  <p id="status" role="status" aria-live="polite">Loading your watchlist…</p>
+  <section id="saved" aria-label="Your saved auctions"></section>
+  <script type="module" src="./watchlist.js"></script>
+</body>
+</html>
