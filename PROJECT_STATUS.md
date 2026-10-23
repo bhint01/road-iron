@@ -53,3 +53,8 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Installed dedicated auction storage bucket and seller-folder INSERT/SELECT policies; DELETE allows cleanup only for an unused own object. No overwrite policy is granted. Existing store storage was not changed.
 - Full isolated suite and photo validation/upload/resize regression checks passed. A rolled-back remote policy check allowed an own-folder object and rejected a different seller folder. Security advisor shows existing private-watchlist information and Auth leaked-password protection warning; remediation: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection .
 - Real phone gallery selection, actual Storage API transfer and saved image display still require end-to-end user verification. Payment features remain unavailable.
+
+## Seller save feedback — 2026-10-23
+- Moved save feedback beside Save draft; invalid required fields now produce an explicit message. Saving displays immediate progress, disables duplicate submissions, catches authentication/request exceptions, and preserves the form on failure.
+- Targeted seller save, photo and package-separation regression checks passed. Remote authenticated INSERT with a synthetic seller succeeded inside a rolled-back transaction; no test user or draft remains.
+- The owner's silent mobile-save failure has not yet been reproduced in a real browser. The deployed feedback should expose the blocking field or request stage; real gallery upload and session end-to-end checks remain pending.
