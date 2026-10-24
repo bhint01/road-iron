@@ -58,3 +58,11 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Moved save feedback beside Save draft; invalid required fields now produce an explicit message. Saving displays immediate progress, disables duplicate submissions, catches authentication/request exceptions, and preserves the form on failure.
 - Targeted seller save, photo and package-separation regression checks passed. Remote authenticated INSERT with a synthetic seller succeeded inside a rolled-back transaction; no test user or draft remains.
 - The owner's silent mobile-save failure has not yet been reproduced in a real browser. The deployed feedback should expose the blocking field or request stage; real gallery upload and session end-to-end checks remain pending.
+
+
+## Auction controls in the existing admin app — 2026-10-24
+- Added Store and Auctions tabs inside the signed-in admin workspace at /admin.html. Store remains the initial view; /admin.html#auctions opens the auction tab after store sign-in.
+- Auction review controls are loaded only when that tab opens. The dedicated auction backend still checks verified administrator membership before returning drafts or accepting decisions. Store login alone grants no auction privileges.
+- Auction email links use the existing /auctions/index.html callback and do not create new accounts; return to the admin app and Refresh after signing in if necessary.
+- Log Out attempts local auction sign-out and the existing store sign-out, clears the embedded screen, and reports an auction sign-out failure without blocking store logout. No store database configuration, payment handling or auction publication was changed automatically.
+- Mobile browser tests use mocked backends; see the private auction repository's ADMIN_INTEGRATION.md for evidence and maintenance details.

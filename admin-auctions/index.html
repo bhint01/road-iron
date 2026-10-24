@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Auction controls | ROAD IRON Admin</title>
+  <meta name="robots" content="noindex,nofollow">
+  <style>
+    :root{font:16px Arial,sans-serif;color:#eee;background:#101112;color-scheme:dark}
+    body{margin:0}header,main{max-width:1000px;margin:auto;padding:24px}header{border-bottom:2px solid #e0a12b}
+    h1{margin:18px 0 8px}h2{margin-top:0}a{color:#ffad8f}nav{display:flex;gap:24px;flex-wrap:wrap}
+    .muted{color:#b7c3cd}.notice{background:#293543;border-left:4px solid #e9bb82;padding:16px}
+    .toolbar,.actions{display:flex;align-items:end;gap:16px;flex-wrap:wrap}.toolbar{margin:24px 0}
+    label{display:flex;flex-direction:column;gap:8px}select,input,button{font:inherit;padding:12px;border-radius:7px;border:1px solid #526272}
+    button{background:#e0a12b;color:#111;cursor:pointer}.secondary{background:#273543;color:#e9edf2}button:disabled{opacity:.5;cursor:not-allowed}
+    article{background:#191b1d;border:1px solid #34383b;border-radius:12px;padding:24px;margin:20px 0}
+    .description{white-space:pre-wrap;overflow-wrap:anywhere}dl{display:grid;grid-template-columns:140px 1fr;gap:10px}
+    dt{color:#b7c3cd}dd{margin:0;overflow-wrap:anywhere}fieldset{border:0;padding:0;margin:20px 0 0}
+    [role=status]{min-height:24px}input{max-width:100%;box-sizing:border-box}
+    @media(max-width:520px){header,main{padding:18px}article{padding:18px}dl{grid-template-columns:1fr}dd{margin-bottom:8px}.actions>label{width:100%}}
+  </style>
+</head>
+<body>
+  <header>
+    
+    <h1>Auction administration</h1>
+    <button id="signout" type="button" class="secondary" hidden>Sign out of auctions</button>
+    <p class="muted">Review seller drafts and schedule approved auctions.</p>
+  </header>
+  <main>
+    <p class="notice">Payment collection is not enabled. Approving a draft publishes its auction schedule.</p>
+    <p id="status" role="status" aria-live="polite">Checking administrator access…</p>
+    <button id="refresh" type="button" class="secondary">Refresh</button>
+    <section id="login" hidden aria-label="Administrator sign-in">
+      <h2>Administrator sign-in</h2>
+      <form id="loginform" class="toolbar">
+        <label>Email address<input id="email" type="email" autocomplete="email" required></label>
+        <button type="submit">Send sign-in link</button>
+      </form>
+      <p id="loginstatus" role="status" aria-live="polite"></p>
+    </section>
+    <section id="queue" hidden aria-label="Auction review queue">
+      <div class="toolbar">
+        <label>Show auctions<select id="filter"><option value="draft">Drafts awaiting review</option><option value="published">Published</option><option value="cancelled">Cancelled</option></select></label>
+        
+      </div>
+      <p class="muted">Showing the latest 100 matches. Cancellation is available only before any bids and before closing.</p>
+      <div id="auctions"></div>
+    </section>
+  </main>
+  <script type="module" src="./admin.js"></script>
+  <script src="./frame-size.js"></script>
+</body>
+</html>
