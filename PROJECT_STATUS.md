@@ -78,3 +78,9 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Email verification remains separate from password creation. Signup and recovery reuse the existing /auctions/index.html callback; recovery sessions open the password form. Expired link errors lead to a new reset request. No SMTP settings or store authentication changes.
 - Added profile contact/address editor earlier in this session; profile now links to password settings. Contact details remain user-editable metadata, not authorization or a confirmed order shipping address.
 - Targeted isolated auth regression tests pass for signup/password confirmation, sign-in, reset callback, password updates, expired sessions, request failures/retry, sign-out clearing and duplicate submissions. JavaScript syntax checks pass. These use mocked Auth responses; real registration, confirmation-email delivery, recovery-email delivery and subsequent password login still need end-to-end verification. Do not mark those checks complete from deployment alone.
+
+
+## Password visibility — 2026-10-24
+- Owner reports the preceding password setup worked. This does not establish every registration and recovery path as verified.
+- Added a labeled Show password checkbox to sign-in, registration and password settings. It reveals both password and confirmation fields and can hide them again. Passwords start concealed; successful submissions and sign-out conceal them again. The control is hidden on the email-only reset request screen.
+- Existing isolated authentication regression checks and JavaScript syntax check pass. An isolated UI behavior check verified showing/hiding without changing typed values across account modes and concealing after sign-out. Real mobile rendering of the checkbox remains unverified.
