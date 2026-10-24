@@ -61,30 +61,21 @@ function render(){
 }
 document.querySelector('#search').addEventListener('input',render);
 document.querySelector('#refresh').onclick=load;
-const signForm=document.querySelector('#signin-form'), signEmail=document.querySelector('#signin-email'), signMessage=document.querySelector('#signin-status'), signSend=document.querySelector('#signin-send');
+const signForm=document.querySelector('#signin-form'), signMessage=document.querySelector('#signin-status');
 document.querySelector('#sign').onclick=async()=>{
  if(!db||db.previewOnly)return;
- if(!signedIn){signForm.hidden=false;signEmail.focus();return;}
+ if(!signedIn){location.assign(new URL('./auth.html',location.href).href);return;}
  try{const {error}=await db.auth.signOut();if(error)throw error;document.querySelector('#sign').textContent='Sign in';}
  catch(error){signForm.hidden=false;signMessage.textContent='Could not sign out: '+error.message;}
 };
-signForm.onsubmit=async event=>{
- event.preventDefault();
- if(signSend.disabled)return;
- const email=signEmail.value.trim();if(!email||!signEmail.checkValidity()){signEmail.reportValidity();return;}
- signSend.disabled=true;signMessage.textContent='Sending sign-in link…';
- try{
-  const {error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:new URL('./index.html',location.href).href}});
-  if(error)throw error;
-  signMessage.textContent='Check your email for a sign-in link. Open it in this browser.';
- }catch(error){signMessage.textContent='Could not send sign-in link: '+error.message;}
- finally{signSend.disabled=false;}
-};
 if(db)db.auth.onAuthStateChange((_event,session)=>{
+ if(_event==='PASSWORD_RECOVERY'){
+  location.replace(new URL('./auth.html?mode=password',location.href).href);return;
+ }
+
  generation++;saved=new Set();watchlistReady=false;signedIn=Boolean(session);if(session){signForm.hidden=true;signMessage.textContent='';}render();
  if(!db.previewOnly)document.querySelector('#sign').textContent=session?'Sign out':'Sign in';
  setTimeout(load,0);
 });
 load();
 setInterval(()=>{if(!document.hidden)load();},15000);
-
