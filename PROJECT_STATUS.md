@@ -66,3 +66,8 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Auction email links use the existing /auctions/index.html callback and do not create new accounts; return to the admin app and Refresh after signing in if necessary.
 - Log Out attempts local auction sign-out and the existing store sign-out, clears the embedded screen, and reports an auction sign-out failure without blocking store logout. No store database configuration, payment handling or auction publication was changed automatically.
 - Mobile browser tests use mocked backends; see the private auction repository's ADMIN_INTEGRATION.md for evidence and maintenance details.
+
+## Auction navigation correction — 2026-10-24
+- Replaced the flashing embedded tab with native Store/Auctions links inside the same existing admin app. The direct auction route is /admin-auctions/index.html; old /admin.html#auctions bookmarks redirect there.
+- Navigation works without the optional helper script and no iframe remains in the store page. The dedicated auction session and database administrator checks remain required. No real draft was published or changed.
+- Phone-sized Chromium regression checks cover helper-load failure, direct navigation, Store return, old bookmarks, membership denial and combined logout with mocked backends.

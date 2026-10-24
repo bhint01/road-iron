@@ -18,12 +18,14 @@
     dt{color:#b7c3cd}dd{margin:0;overflow-wrap:anywhere}fieldset{border:0;padding:0;margin:20px 0 0}
     [role=status]{min-height:24px}input{max-width:100%;box-sizing:border-box}
     @media(max-width:520px){header,main{padding:18px}article{padding:18px}dl{grid-template-columns:1fr}dd{margin-bottom:8px}.actions>label{width:100%}}
-  </style>
+  .adminWorkspaceTabs{display:flex;gap:12px;margin:24px 0}.adminWorkspaceTabs a{display:flex;align-items:center;justify-content:center;flex:1;min-height:48px;box-sizing:border-box;padding:12px 16px;border-radius:7px;text-decoration:none;font-weight:bold;background:#2c3033;color:#eee;border:1px solid #555}.adminWorkspaceTabs a[aria-current="page"]{background:#e0a12b;color:#111;border-color:#e0a12b}.adminWorkspaceTabs a:focus-visible{outline:2px solid white;outline-offset:3px}</style>
 </head>
 <body>
   <header>
     
-    <h1>Auction administration</h1>
+    <h1>ROAD IRON — Admin</h1>
+    <nav class="adminWorkspaceTabs" aria-label="Administration sections"><a href="/admin.html">Store</a><a href="/admin-auctions/index.html?v=20261024b" aria-current="page">Auctions</a></nav>
+    <h2>Auction administration</h2>
     <button id="signout" type="button" class="secondary" hidden>Sign out of auctions</button>
     <p class="muted">Review seller drafts and schedule approved auctions.</p>
   </header>
@@ -49,6 +51,6 @@
     </section>
   </main>
   <script type="module" src="./admin.js"></script>
-  <script src="./frame-size.js"></script>
+  
 </body>
 </html>
