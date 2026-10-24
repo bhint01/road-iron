@@ -71,3 +71,10 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Replaced the flashing embedded tab with native Store/Auctions links inside the same existing admin app. The direct auction route is /admin-auctions/index.html; old /admin.html#auctions bookmarks redirect there.
 - Navigation works without the optional helper script and no iframe remains in the store page. The dedicated auction session and database administrator checks remain required. No real draft was published or changed.
 - Phone-sized Chromium regression checks cover helper-load failure, direct navigation, Store return, old bookmarks, membership denial and combined logout with mocked backends.
+
+
+## Auction password accounts — 2026-10-24
+- Added explicit customer registration with password confirmation, email/password sign-in, password-reset requests, and authenticated password creation/change. Existing email-link customers can set their first password using Forgot password or the profile link.
+- Email verification remains separate from password creation. Signup and recovery reuse the existing /auctions/index.html callback; recovery sessions open the password form. Expired link errors lead to a new reset request. No SMTP settings or store authentication changes.
+- Added profile contact/address editor earlier in this session; profile now links to password settings. Contact details remain user-editable metadata, not authorization or a confirmed order shipping address.
+- Targeted isolated auth regression tests pass for signup/password confirmation, sign-in, reset callback, password updates, expired sessions, request failures/retry, sign-out clearing and duplicate submissions. JavaScript syntax checks pass. These use mocked Auth responses; real registration, confirmation-email delivery, recovery-email delivery and subsequent password login still need end-to-end verification. Do not mark those checks complete from deployment alone.
