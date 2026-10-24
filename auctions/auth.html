@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>Account | Road Iron Auctions</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#e9edf2;background:#101720}*{box-sizing:border-box}body{max-width:560px;margin:auto;padding:24px 18px}a{color:#ffad8f}nav{display:flex;flex-wrap:wrap;gap:18px;margin:24px 0}form{background:#202d39;padding:22px;border:1px solid #394c5e;border-radius:12px}label{display:block;margin:16px 0 6px}input,button{font:inherit;padding:12px;border-radius:7px}input{width:100%;min-width:0;border:1px solid #526272}button{background:#c94e2d;color:white;border:0;cursor:pointer;margin-top:18px}button:disabled{opacity:.5;cursor:not-allowed}.muted{color:#b7c3cd}#message{min-height:24px;overflow-wrap:anywhere}[hidden]{display:none!important}
+</style></head><body>
+<a href="index.html">← Back to auctions</a>
+<h1 id="heading">Sign in</h1><p id="intro">Use your email address and password.</p>
+<nav aria-label="Account options"><a href="auth.html">Sign in</a><a href="auth.html?mode=register">Create account</a><a href="auth.html?mode=forgot">Forgot password?</a></nav>
+<form id="auth-form">
+<div id="email-row"><label for="auth-email">Email address</label><input id="auth-email" name="email" type="email" autocomplete="email" required maxlength="254"></div>
+<div id="password-row"><label for="auth-password">Password</label><input id="auth-password" name="password" type="password" autocomplete="current-password" required><p id="password-help" class="muted" hidden>Use at least 8 characters.</p></div>
+<div id="confirm-row" hidden><label for="auth-confirm">Confirm password</label><input id="auth-confirm" name="confirm-password" type="password" autocomplete="new-password" disabled></div>
+<button id="auth-submit" type="submit">Sign in</button>
+</form>
+<p id="message" role="status" aria-live="polite"></p>
+<p id="existing-help">Already have an account but never set a password? Use <a href="auth.html?mode=forgot">Forgot password?</a> to set one by email.</p>
+<p id="success-links" hidden><a href="index.html">Continue to auctions</a> · <a href="profile.html">My profile</a></p>
+<script type="module" src="./auth.js"></script></body></html>
