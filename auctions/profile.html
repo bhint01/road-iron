@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My profile | Road Iron Auctions</title>
+  <style>
+    :root{font:16px system-ui,sans-serif;color:#e9edf2;background:#101720}*{box-sizing:border-box}body{max-width:760px;margin:auto;padding:24px 18px}nav{display:flex;gap:16px;flex-wrap:wrap}a{color:#ffad8f}h1{margin:28px 0 8px}.muted{color:#b7c3cd}fieldset{border:1px solid #394c5e;border-radius:12px;padding:20px;background:#202d39;margin:20px 0}label{display:block;margin:14px 0 6px}input,button{font:inherit;padding:12px;border-radius:7px}input{width:100%;min-width:0;border:1px solid #526272;background:white;color:#151515}input:read-only{background:#e5e9ed}button{background:#c94e2d;color:white;border:0;cursor:pointer;margin-top:18px}button:disabled{opacity:.5;cursor:not-allowed}.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}#status{min-height:24px}#status:focus{outline:2px solid #ffad8f;outline-offset:4px}@media(max-width:480px){.row{grid-template-columns:1fr;gap:0}}[hidden]{display:none!important}
+  </style>
+</head>
+<body>
+  <nav aria-label="Auction navigation"><a href="index.html">Auctions</a><a href="seller.html">Seller dashboard</a><a href="account.html">My bids &amp; results</a><a href="watchlist.html">Watchlist</a></nav>
+  <h1>My profile</h1>
+  <p class="muted">Update your contact information and mailing address.</p>
+  <p id="status" role="status" aria-live="polite" tabindex="-1">Loading your profile…</p>
+  <p id="signin-help" hidden><a href="index.html">Sign in on the auction homepage</a>, then return here to edit your profile.</p>
+  <form id="profile-form" hidden>
+    <fieldset id="profile-fields" disabled>
+      <legend>Contact information</legend>
+      <label for="email">Sign-in email</label><input id="email" type="email" readonly>
+      <p class="muted">Sign in using the link emailed to this address. No password is required.</p>
+      <label for="full_name">Full name</label><input id="full_name" name="full_name" autocomplete="name" maxlength="150">
+      <label for="phone">Phone number</label><input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+      <label for="address_line1">Street address</label><input id="address_line1" name="address_line1" autocomplete="address-line1" maxlength="200">
+      <label for="address_line2">Apartment, suite, etc. (optional)</label><input id="address_line2" name="address_line2" autocomplete="address-line2" maxlength="200">
+      <label for="city">City</label><input id="city" name="city" autocomplete="address-level2" maxlength="100">
+      <div class="row"><div><label for="region">State / province</label><input id="region" name="region" autocomplete="address-level1" maxlength="100"></div><div><label for="postal_code">ZIP / postal code</label><input id="postal_code" name="postal_code" autocomplete="postal-code" maxlength="20"></div></div>
+      <label for="country">Country</label><input id="country" name="country" autocomplete="country-name" maxlength="100">
+      <button id="save" type="submit">Save profile</button>
+    </fieldset>
+  </form>
+  <script type="module" src="./profile.js"></script>
+</body>
+</html>
