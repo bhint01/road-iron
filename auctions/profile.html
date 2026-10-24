@@ -17,7 +17,7 @@
     <fieldset id="profile-fields" disabled>
       <legend>Contact information</legend>
       <label for="email">Sign-in email</label><input id="email" type="email" readonly>
-      <p class="muted">Sign in using the link emailed to this address. No password is required.</p>
+      <p class="muted">Use this email address and your password to sign in.</p>
       <label for="full_name">Full name</label><input id="full_name" name="full_name" autocomplete="name" maxlength="150">
       <label for="phone">Phone number</label><input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
       <label for="address_line1">Street address</label><input id="address_line1" name="address_line1" autocomplete="address-line1" maxlength="200">
@@ -28,6 +28,7 @@
       <button id="save" type="submit">Save profile</button>
     </fieldset>
   </form>
+  <p><a href="auth.html?mode=password">Set or change password</a> · <a href="auth.html?mode=forgot">Forgot password?</a></p>
   <script type="module" src="./profile.js"></script>
 </body>
 </html>
