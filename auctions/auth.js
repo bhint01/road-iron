@@ -9,13 +9,24 @@ let busy = false;
 let generation = 0;
 const callback = new URL('./index.html', location.href).href;
 
+const showPassword = $('#show-password');
+function concealPasswords() {
+  showPassword.checked = false;
+  password.type = confirmation.type = 'password';
+}
+showPassword.addEventListener('change', () => {
+  password.type = confirmation.type = showPassword.checked ? 'text' : 'password';
+});
+
 function configure() {
+  concealPasswords();
   const setting = mode === 'password', creating = mode === 'register', forgot = mode === 'forgot';
   $('#heading').textContent = setting ? 'Set your password' : creating ? 'Create account' : forgot ? 'Reset your password' : 'Sign in';
   $('#intro').textContent = setting ? 'Choose a password for your Road Iron Auctions account.' : creating ? 'Create a password, then verify your email to finish registration.' : forgot ? 'We’ll email you a link to choose a new password. Existing customers can also use this to set their first password.' : 'Use your email address and password.';
   $('#email-row').hidden = setting;
   email.disabled = setting;
   $('#password-row').hidden = forgot;
+  $('#visibility-row').hidden = forgot;
   password.disabled = forgot;
   password.minLength = creating || setting ? 8 : 0;
   password.autocomplete = creating || setting ? 'new-password' : 'current-password';
@@ -55,6 +66,7 @@ db.auth.onAuthStateChange((event) => {
   } else if (event === 'SIGNED_OUT' && mode === 'password') {
     generation++;
     form.reset();
+    concealPasswords();
     submit.disabled = true;
     message.textContent = 'You are signed out. Request a new reset link before saving a password.';
   }
@@ -88,6 +100,7 @@ form.addEventListener('submit', async event => {
       const { data, error } = await db.auth.signUp({ email: email.value.trim(), password: password.value, options: { emailRedirectTo: callback } });
       if (error) throw error;
       password.value = confirmation.value = '';
+      concealPasswords();
       message.textContent = data?.session ? 'Your account is ready.' : 'Check your email and tap the confirmation link to finish registration. If you already have an account, sign in or use Forgot password?.';
       $('#success-links').hidden = !data?.session;
     } else if (mode === 'password') {
@@ -98,6 +111,7 @@ form.addEventListener('submit', async event => {
       if (error) throw error;
       if (current !== generation) return;
       password.value = confirmation.value = '';
+      concealPasswords();
       message.textContent = 'Your password has been saved. You can now sign in with your email and password.';
       form.hidden = true;
       $('#success-links').hidden = false;
@@ -105,6 +119,7 @@ form.addEventListener('submit', async event => {
       const { error } = await db.auth.signInWithPassword({ email: email.value.trim(), password: password.value });
       if (error) throw error;
       password.value = '';
+      concealPasswords();
       location.assign(new URL('./index.html', location.href).href);
     }
   } catch (error) {
