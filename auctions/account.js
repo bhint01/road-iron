@@ -1,5 +1,4 @@
 import { db } from './supabase-client.js';
-import {PAYMENT_API_ORIGIN} from './payments-config.js';
 import { describeOutcome } from './auction-status.js';
 
 const status=document.querySelector('#status');
@@ -16,17 +15,29 @@ async function load(){
     const {data:{user},error:authError}=await db.auth.getUser();
     if(current!==generation)return;
     if(authError||!user){status.textContent='Sign in on the auction homepage to see your bids and results.';return;}
-    const {data,error}=await db.rpc('my_auction_activity');
+    const [{data,error},{data:payments,error:paymentError}]=await Promise.all([db.rpc('my_auction_activity'),db.rpc('my_auction_payments')]);
     if(current!==generation)return;
     if(error)throw error;
+    if(paymentError)throw paymentError;
+    const paymentByAuction=new Map((payments||[]).map(payment=>[payment.auction_id,payment]));
     for(const auction of data||[]){
+      const payment=paymentByAuction.get(auction.auction_id);
+      const paid=payment?.paid===true;
+      const refunded=Number(payment?.refunded_cents||0);
+      const pending=Number(payment?.refund_pending_cents||0);
+      const paymentLabel=paid?(refunded>=Number(payment.total_cents)?'Sandbox payment fully refunded.':'Sandbox payment confirmed.'):'You have the winning bid. Sandbox payment testing is available.';
       const card=document.createElement('article');
-      card.append(element('h2',auction.title),element('p',auction.is_winner?'You have the winning bid. Sandbox payment testing is available.':describeOutcome(auction)));
+      card.append(element('h2',auction.title),element('p',auction.is_winner?paymentLabel:describeOutcome(auction)));
       card.append(element('p',auction.participation==='seller'?'You are the seller':'You participated as a bidder'));
       if(auction.my_bid_cents!==null)card.append(element('p','Your highest bid: '+money(auction.my_bid_cents)));
       if(auction.highest_bid_cents!==null)card.append(element('p','Highest bid: '+money(auction.highest_bid_cents)));
       card.append(element('p','Closes: '+new Date(auction.ends_at).toLocaleString()));
-      if(auction.is_winner&&auction.outcome==='winner_selected'){
+      if(paid){
+        card.append(element('p','Sandbox paid: '+money(payment.total_cents)));
+        if(refunded>0)card.append(element('p','Refunded: '+money(refunded)));
+        if(pending>0)card.append(element('p','Refund pending: '+money(pending)));
+      }
+      if(auction.is_winner&&auction.outcome==='winner_selected'&&!paid){
         const link=element('a','Test sandbox checkout');link.href='pay.html?auction='+encodeURIComponent(auction.auction_id);card.append(link);
       }
       holder.append(card);
