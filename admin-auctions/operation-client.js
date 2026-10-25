@@ -3,7 +3,7 @@ export async function runOperation(db,action,obligationId=null,amountCents=null,
  if(error)throw error;
  const response=await fetch('https://aefukymxvapmwkujuxtq.supabase.co/functions/v1/auction-sandbox-operations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),credentials:'omit'});
  const result=await response.json();
- if(!response.ok)throw Error(result.code==='more_permissions_required'?'The sandbox Stripe key needs additional permissions for this operation.':result.error||'Sandbox operation unavailable');
+ if(!response.ok)throw Error(['more_permissions_required','forbidden'].includes(result.code)?'The sandbox Stripe key needs additional permissions for this operation.':result.error||'Sandbox operation unavailable');
  return result;
 }
 export async function runSellerJob(db,obligationId,action='release'){
