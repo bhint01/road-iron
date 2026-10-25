@@ -5,7 +5,7 @@ for(const key of ['payment_intent_client_secret','setup_intent_client_secret'])c
 history.replaceState(null,'',currentUrl.pathname+currentUrl.search+currentUrl.hash);
 let generation=0,busy=false;
 db.auth.onAuthStateChange((event)=>{
- if(event==='SIGNED_OUT'){generation++;busy=false;retry.hidden=true;message.textContent='You signed out. Sign in to your winning bidder account to continue.';}
+ if(event==='SIGNED_OUT'){generation++;busy=false;retry.hidden=true;document.querySelector('#fulfillment-order')?.remove();message.textContent='You signed out. Sign in to your winning bidder account to continue.';}
 });
 async function start(){
  if(busy)return;busy=true;const attempt=++generation;retry.hidden=true;
@@ -20,6 +20,7 @@ async function start(){
   });
   const result=await response.json();if(attempt!==generation)return;
   if(!response.ok){retry.hidden=result.retryable!==true;throw Error(result.error||'Sandbox checkout unavailable.');}
+  if(result.status==='fulfillment_required'){const {showFulfillment}=await import('./fulfillment-ui.js?v=1');if(attempt!==generation)return;await showFulfillment({db,auctionId:id,token:session.access_token,message,isCurrent:()=>attempt===generation});return;}
   if(['paid','processing'].includes(result.status)){message.textContent=result.message;return;}
   let destination;try{destination=new URL(result.url)}catch{throw Error('Invalid Stripe checkout destination.')}
   if(destination.protocol!=='https:'||destination.hostname!=='checkout.stripe.com')throw Error('Invalid Stripe checkout destination.');
