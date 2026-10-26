@@ -1,3 +1,4 @@
+import {LIVE_API_ORIGIN} from './live-config.js';
 import { db } from './supabase-client.js';
 import { describeOutcome } from './auction-status.js';
 const status=document.querySelector('#status'), list=document.querySelector('#list');
@@ -16,7 +17,7 @@ async function load(){
  signedIn=Boolean(user&&!authError);watchlistReady=!watched.error;saved=new Set((watched.data||[]).map(a=>a.auction_id));
  const {data,error}=await db.from('auctions').select('id,title,description,image_url,opening_bid_cents,increment_cents,starts_at,ends_at,status').eq('status','published').order('ends_at');
  if(error){status.textContent='Unable to load auctions: '+error.message;return;}
- const loaded=await Promise.all((data||[]).map(async a=>{const [summary,result]=await Promise.all([db.rpc('auction_bid_summary',{p_auction_id:a.id}),db.rpc('auction_outcome',{p_auction_id:a.id})]);return {...a,result:result.data?.[0]||null,resultError:Boolean(result.error),highest_bid_cents:summary.error?null:summary.data?.[0]?.highest_bid_cents??null,bid_count:summary.error?null:summary.data?.[0]?.bid_count??null};}));if(current!==generation)return;auctions=loaded;render();
+ const loaded=await Promise.all((data||[]).map(async a=>{let delivery=null;try{if(LIVE_API_ORIGIN){const response=await fetch(LIVE_API_ORIGIN+'/listing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({auctionId:a.id}),credentials:'omit'});if(response.ok)delivery=await response.json();}}catch{}const [summary,result]=await Promise.all([db.rpc('auction_bid_summary',{p_auction_id:a.id}),db.rpc('auction_outcome',{p_auction_id:a.id})]);return {...a,delivery,result:result.data?.[0]||null,resultError:Boolean(result.error),highest_bid_cents:summary.error?null:summary.data?.[0]?.highest_bid_cents??null,bid_count:summary.error?null:summary.data?.[0]?.bid_count??null};}));if(current!==generation)return;auctions=loaded;render();
 }
 function render(){
  list.replaceChildren();
@@ -27,6 +28,7 @@ function render(){
  const card=el('article','card'), content=el('div','content');
  if(a.image_url&&(/^https:\/\//.test(a.image_url)||(db.previewOnly&&a.image_url.startsWith('./')))){const img=el('img');img.src=a.image_url;img.alt=a.title;img.loading='lazy';card.append(img);}
  content.append(el('h2','',a.title),el('p','meta',a.description.slice(0,180)));
+ const d=a.delivery;if(d){if(d.pickup?.enabled)content.append(el('p','meta','Pickup: '+(d.pickup.city||'')+', '+(d.pickup.state||'')+' — '+money(d.pickup.feeCents||0)));if(d.shipping?.enabled)content.append(el('p','meta','Shipping: '+money(d.shipping.amountCents)));content.append(el('p','meta','Applicable sales tax is calculated before payment.'));}else content.append(el('p','meta','Delivery setup is not complete. Bidding is unavailable.'));
  const now=Date.now(),start=Date.parse(a.starts_at),end=Date.parse(a.ends_at);
  const active=now>=start&&now<end&&!a.result;
  const top=Number(a.highest_bid_cents||0);
@@ -35,7 +37,7 @@ function render(){
  content.append(el('p','meta',active?'Closes: '+new Date(a.ends_at).toLocaleString():now<start?'Starts: '+new Date(a.starts_at).toLocaleString():'Auction ended'));
  if(a.result)content.append(el('p','status',describeOutcome(a.result)));else if(now>=end)content.append(el('p','status','Auction ended · result is being recorded'));
  const row=el('div','bid'),amount=el('input');amount.type='number';amount.min=String(min/100);amount.step='0.01';amount.value=(min/100).toFixed(2);amount.setAttribute('aria-label','Bid amount in dollars');
- const btn=el('button','', 'Place bid');btn.disabled=db.previewOnly||!active||a.bid_count===null||a.resultError;
+ const btn=el('button','', 'Place bid');btn.disabled=!a.delivery||db.previewOnly||!active||a.bid_count===null||a.resultError;
  btn.onclick=async()=>{const cents=Math.round(Number(amount.value)*100);if(!Number.isSafeInteger(cents)||cents<min){alert('Minimum bid is '+money(min));return;}
  if(!confirm('Submit binding bid of '+money(cents)+'?'))return;
  btn.disabled=true;const {error}=await db.rpc('place_bid',{p_auction_id:a.id,p_amount_cents:cents});
@@ -79,3 +81,5 @@ if(db)db.auth.onAuthStateChange((_event,session)=>{
 });
 load();
 setInterval(()=>{if(!document.hidden)load();},15000);
+
+

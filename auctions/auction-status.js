@@ -6,9 +6,10 @@ export function describeOutcome(record) {
     active: 'Open for bidding', scheduled: 'Scheduled', draft: 'Draft', cancelled: 'Cancelled'
   };
   if (record.outcome === 'winner_selected') {
-    if (record.is_winner) return 'You have the winning bid · payments are not enabled';
+    if (record.is_winner) return 'You have the winning bid · check My Bids for payment status';
     if (record.participation === 'bidder') return 'Auction ended · another bidder won';
-    return 'Winner selected · payment collection is not enabled';
+    return 'Winner selected';
   }
   return labels[record.outcome] || 'Result unavailable';
 }
+
