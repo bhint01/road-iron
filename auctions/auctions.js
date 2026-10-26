@@ -27,6 +27,7 @@ function render(){
  for(const a of shown){
  const card=el('article','card'), content=el('div','content');
  if(a.image_url&&(/^https:\/\//.test(a.image_url)||(db.previewOnly&&a.image_url.startsWith('./')))){const img=el('img');img.src=a.image_url;img.alt=a.title;img.loading='lazy';card.append(img);}
+ const policy=document.createElement('a');policy.href='returns.html';policy.textContent='Delivery claims: 48 hours · Pickup sales final';content.append(policy);
  content.append(el('h2','',a.title),el('p','meta',a.description.slice(0,180)));
  const d=a.delivery;if(d){if(d.pickup?.enabled)content.append(el('p','meta','Pickup: '+(d.pickup.city||'')+', '+(d.pickup.state||'')+' — '+money(d.pickup.feeCents||0)));if(d.shipping?.enabled)content.append(el('p','meta','Shipping: '+money(d.shipping.amountCents)));content.append(el('p','meta','Applicable sales tax is calculated before payment.'));}else content.append(el('p','meta','Delivery setup is not complete. Bidding is unavailable.'));
  const now=Date.now(),start=Date.parse(a.starts_at),end=Date.parse(a.ends_at);

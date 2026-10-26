@@ -1,3 +1,4 @@
+import {RETURN_POLICY_VERSION,returnPolicy} from './return-policy.js';
 import {LIVE_API_ORIGIN} from './live-config.js';
 const money=x=>(Number(x)/100).toLocaleString('en-US',{style:'currency',currency:'USD'});
 export async function showFulfillment({db,auctionId,token,message,isCurrent}){
@@ -12,12 +13,14 @@ export async function showFulfillment({db,auctionId,token,message,isCurrent}){
  if(options.shipping?.enabled&&options.shipping.pricing==='fixed')add('shipping',`Shipping — ${money(options.shipping.amountCents)}`);
  if(!select.options.length)throw Error('A shipping quote or pickup arrangement must be approved before payment.');
  if(options.selection){select.value=options.selection.method;for(const [key,value] of Object.entries(options.selection.address||{}))if(form.elements[key])form.elements[key].value=value;}
- const change=()=>{fields.hidden=select.value!=='shipping';for(const name of ['line1','city','state','postal_code'])form.elements[name].required=select.value==='shipping';};
+ const acknowledgement=document.createElement('label');const accepted=document.createElement('input');accepted.type='checkbox';accepted.required=true;const terms=document.createElement('span');acknowledgement.append(accepted,terms);button.before(acknowledgement);
+ const change=()=>{accepted.checked=false;terms.textContent=' I understand: '+returnPolicy(select.value);fields.hidden=select.value!=='shipping';for(const name of ['line1','city','state','postal_code'])form.elements[name].required=select.value==='shipping';};
  select.onchange=change;change();message.after(form);message.textContent='Choose your delivery method. The next screen shows item, delivery, tax and total before payment.';
  form.onsubmit=async event=>{
   event.preventDefault();if(button.disabled||!isCurrent())return;button.disabled=true;summary.textContent='Preparing your order total…';
   try{
-   const input={auctionId,method:select.value};
+   if(!accepted.checked)throw Error('Please acknowledge the return policy.');
+   const input={auctionId,method:select.value,policyVersion:RETURN_POLICY_VERSION};
    if(select.value==='shipping'){input.address={country:'US'};for(const key of ['line1','line2','city','state','postal_code'])input.address[key]=form.elements[key].value.trim();}
    const response=await fetch(LIVE_API_ORIGIN+'/checkout',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},credentials:'omit',body:JSON.stringify(input)});
    const result=await response.json();if(!isCurrent())return;if(!response.ok)throw Error(result.error||'Order total unavailable');
