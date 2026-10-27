@@ -8,6 +8,14 @@ const confirmation = $('#auth-confirm'), submit = $('#auth-submit'), message = $
 let busy = false;
 let generation = 0;
 const callback = new URL('./index.html', location.href).href;
+// Only this fixed, same-site destination is supported; never redirect to user-supplied URLs.
+const returnToSeller = new URLSearchParams(location.search).get('next') === 'seller';
+const signedInDestination = new URL(returnToSeller ? './seller.html' : './index.html', location.href).href;
+if(returnToSeller){
+ document.querySelectorAll('a[href^="auth.html"]').forEach(link=>{const url=new URL(link.href);url.searchParams.set('next','seller');link.href=url.href;});
+ const continueLink=document.querySelector('#success-links a[href="index.html"]');
+ continueLink.href=signedInDestination;continueLink.textContent='Continue to seller dashboard';
+}
 
 const showPassword = $('#show-password');
 function concealPasswords() {
@@ -120,7 +128,7 @@ form.addEventListener('submit', async event => {
       if (error) throw error;
       password.value = '';
       concealPasswords();
-      location.assign(new URL('./index.html', location.href).href);
+      location.assign(signedInDestination);
     }
   } catch (error) {
     if (current === generation) {

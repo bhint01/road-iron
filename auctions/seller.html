@@ -1,10 +1,18 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Seller dashboard | Road Iron Auctions</title><style>body{font:16px system-ui;background:#121b24;color:#f4f4f4;max-width:720px;margin:30px auto;padding:20px}label{display:block;margin:14px 0}input,textarea,button{font:inherit;padding:10px;width:100%;box-sizing:border-box}button{background:#c94e2d;color:white;border:0;margin-top:16px}a{color:#f8b18f}.note{color:#f1c384} .photoTiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:12px;margin:14px 0}.photoTile{background:#1c2e2d;padding:10px;border:1px solid #405348;border-radius:8px}.photoTile img{width:100%;height:110px;object-fit:contain}.photoTile p{margin:8px 0;font-weight:bold}.photoTile button{font-size:13px;margin:5px 0 0;padding:9px;background:#eab64e;color:#17272a}.photoTile button:disabled{opacity:.5}.photoTile button:focus-visible{outline:3px solid white}</style></head><body><nav aria-label="Auction navigation"><a href="index.html">← Auctions</a> · <a href="account.html">My bids &amp; results</a> · <a href="watchlist.html">Watchlist</a></nav><h1>Seller dashboard</h1><p><a href="seller-payments.html">Set up seller payments</a></p><h2 id="draft-heading">Create an auction draft</h2><form id="form"><label>Item title<input name="title" required minlength="3" maxlength="160"></label><label>Description<textarea name="description" rows="5"></textarea></label><label>Auction photos<input id="photo" type="file" multiple accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help photo-status"></label><p id="photo-help">Add up to 20 photos, up to 20 MB each. JPG, PNG or WebP. Choose several at once or add more later. The first photo is your cover. Photos are public once uploaded; avoid personal information.</p><div id="photo-previews" class="photoTiles" aria-label="Selected auction photos"></div><p id="photo-status" role="status" aria-live="polite"></p><label>Opening bid (USD)<input name="opening" type="number" min="1" step=".01" required></label><label>Minimum increment (USD)<input name="increment" type="number" min=".01" step=".01" value="1" required></label><label>Reserve (USD, optional)<input name="reserve" type="number" min="0" step=".01"></label><label>Start date/time<input name="starts" type="datetime-local" required></label><label>End date/time<input name="ends" type="datetime-local" required></label><button type="submit">Save draft</button><button id="cancel-edit" type="button" hidden>Cancel editing</button><p class="note" id="status" role="status" aria-live="polite" tabindex="-1">Checking sign-in…</p></form><h2>My auctions</h2><p id="draftstatus">Sign in to view your drafts.</p><div id="drafts"></div><script type="module">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Seller dashboard | Road Iron Auctions</title><style>body{font:16px system-ui;background:#121b24;color:#f4f4f4;max-width:720px;margin:30px auto;padding:20px}label{display:block;margin:14px 0}input,textarea,button{font:inherit;padding:10px;width:100%;box-sizing:border-box}button{background:#c94e2d;color:white;border:0;margin-top:16px}a{color:#f8b18f}.note{color:#f1c384}.signInButton{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;box-sizing:border-box;max-width:100%;background:#c94e2d;color:#fff;font-weight:700;border-radius:7px;text-decoration:none;text-align:center}.signInButton:hover{background:#ad3f22}.signInButton:focus-visible{outline:3px solid #fff;outline-offset:3px}#seller-signout{width:auto;min-height:44px;margin:0 0 16px}#status{overflow-wrap:anywhere}[hidden]{display:none!important} .photoTiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:12px;margin:14px 0}.photoTile{background:#1c2e2d;padding:10px;border:1px solid #405348;border-radius:8px}.photoTile img{width:100%;height:110px;object-fit:contain}.photoTile p{margin:8px 0;font-weight:bold}.photoTile button{font-size:13px;margin:5px 0 0;padding:9px;background:#eab64e;color:#17272a}.photoTile button:disabled{opacity:.5}.photoTile button:focus-visible{outline:3px solid white}</style></head><body><nav aria-label="Auction navigation"><a href="index.html">← Auctions</a> · <a href="account.html">My bids &amp; results</a> · <a href="watchlist.html">Watchlist</a></nav><h1>Seller dashboard</h1><p class="note" id="status" role="status" aria-live="polite" tabindex="-1">Checking sign-in…</p><p id="sign-in-actions" hidden><a class="signInButton" href="auth.html?next=seller">Sign In / Create Account</a></p><button id="seller-signout" type="button" hidden>Sign out</button><p><a href="seller-payments.html">Set up seller payments</a></p><h2 id="draft-heading">Create an auction draft</h2><form id="form"><label>Item title<input name="title" required minlength="3" maxlength="160"></label><label>Description<textarea name="description" rows="5"></textarea></label><label>Auction photos<input id="photo" type="file" multiple accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help photo-status"></label><p id="photo-help">Add up to 20 photos, up to 20 MB each. JPG, PNG or WebP. Choose several at once or add more later. The first photo is your cover. Photos are public once uploaded; avoid personal information.</p><div id="photo-previews" class="photoTiles" aria-label="Selected auction photos"></div><p id="photo-status" role="status" aria-live="polite"></p><label>Opening bid (USD)<input name="opening" type="number" min="1" step=".01" required></label><label>Minimum increment (USD)<input name="increment" type="number" min=".01" step=".01" value="1" required></label><label>Reserve (USD, optional)<input name="reserve" type="number" min="0" step=".01"></label><label>Start date/time<input name="starts" type="datetime-local" required></label><label>End date/time<input name="ends" type="datetime-local" required></label><button type="submit">Save draft</button><button id="cancel-edit" type="button" hidden>Cancel editing</button></form><h2>My auctions</h2><p id="draftstatus">Sign in to view and manage your auction listings.</p><div id="drafts"></div><script type="module">
 import { db } from './supabase-client.js';
 import { createPhotoEditor } from './seller-gallery.js';
 const status=document.querySelector('#status'),form=document.querySelector('#form');
 const photo=document.querySelector('#photo'),photoStatus=document.querySelector('#photo-status');
 const heading=document.querySelector('#draft-heading'),cancel=document.querySelector('#cancel-edit'),saveButton=form.querySelector('button[type="submit"]');
-let saving=false,editing=null,loadingDraft=false,editGeneration=0,listGeneration=0,dirty=false;
+let saving=false,editing=null,loadingDraft=false,editGeneration=0,listGeneration=0,dirty=false,activeUserId=null,authReload;
+const signInActions=document.querySelector('#sign-in-actions'),signOut=document.querySelector('#seller-signout');
+const signedOutMessage='Sign in to create an auction. Please sign in or create a free account to start selling.';
+const signedOutListings='Sign in to view and manage your auction listings.';
+const missingSession=error=>error?.name==='AuthSessionMissingError'||error?.message==='Auth session missing!';
+function showSignedOut(){
+ activeUserId=null;document.querySelector('#drafts').replaceChildren();document.querySelector('#draftstatus').textContent=signedOutListings;
+ status.textContent=signedOutMessage;signInActions.hidden=false;signOut.hidden=true;saveButton.disabled=true;
+}
 const gallery=createPhotoEditor({input:photo,holder:document.querySelector('#photo-previews'),message:photoStatus,onChange:()=>{dirty=true;}});
 const localDate=value=>{const date=new Date(value);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);};
 function clearPhoto(){gallery.load();}
@@ -35,11 +43,14 @@ async function editDraft(id){
 cancel.onclick=()=>{if(saving)return;if(dirty&&!confirm('Discard your unsaved changes?'))return;resetEditor();status.textContent='Editing cancelled. Your saved draft has not changed.';};
 async function loadDrafts(showSignInStatus=false){
  const current=++listGeneration,holder=document.querySelector('#drafts'),msg=document.querySelector('#draftstatus');holder.replaceChildren();
+ let phase='auth';
  try{
   const {data:{user},error:authError}=await db.auth.getUser();if(current!==listGeneration)return;
-  if(authError)throw authError;
-  if(!user){msg.textContent='Sign in on the homepage first.';if(showSignInStatus)status.textContent='Sign in on the auction homepage to create or edit drafts.';return;}
+  if(authError&&!missingSession(authError))throw authError;
+  if(!user||missingSession(authError)){showSignedOut();return;}
+  activeUserId=user.id;signInActions.hidden=true;signOut.hidden=false;saveButton.disabled=Boolean(db.previewOnly)||saving;
   if(showSignInStatus&&!db.previewOnly)status.textContent='Signed in. Create a draft or choose Edit draft below.';
+  phase='list';
   const {data,error}=await db.from('auctions').select('id,title,status,starts_at,ends_at').eq('seller_id',user.id).order('created_at',{ascending:false});
   if(current!==listGeneration)return;if(error)throw error;
   msg.textContent=(data||[]).length+' auction(s)';
@@ -48,13 +59,33 @@ async function loadDrafts(showSignInStatus=false){
    if(a.status==='draft'){const edit=document.createElement('button');edit.type='button';edit.textContent='Edit draft';edit.disabled=Boolean(db.previewOnly);edit.setAttribute('aria-label','Edit draft: '+a.title);edit.onclick=()=>editDraft(a.id);item.append(edit);}
    holder.append(item);
   }
- }catch(error){if(current===listGeneration){msg.textContent='Could not load your auctions: '+error.message;if(showSignInStatus)status.textContent='Could not check your sign-in: '+error.message;}}
+ }catch(error){if(current===listGeneration){
+  if(phase==='auth'&&missingSession(error)){showSignedOut();return;}
+  if(phase==='auth'){signInActions.hidden=false;signOut.hidden=true;saveButton.disabled=true;status.textContent='Unable to verify your sign-in. Check your connection, refresh this page, or sign in again.';msg.textContent='Unable to load your listings until your sign-in is verified. Refresh this page to try again.';}
+  else msg.textContent='Unable to load your auction listings. Refresh this page to try again.';
+ }}
 }
 if(db){
  if(db.previewOnly){status.textContent='Preview only. Draft changes are disabled.';form.querySelectorAll('input,textarea,button').forEach(input=>input.disabled=true);}
  loadDrafts(true);
- db.auth.onAuthStateChange?.((event)=>{if(event==='SIGNED_OUT'){listGeneration++;resetEditor();document.querySelector('#drafts').replaceChildren();document.querySelector('#draftstatus').textContent='Sign in on the homepage first.';status.textContent='You are signed out.';}});
+ db.auth.onAuthStateChange?.((event,session)=>{
+  if(event==='SIGNED_OUT'){
+   clearTimeout(authReload);listGeneration++;resetEditor();showSignedOut();return;
+  }
+  if(['SIGNED_IN','INITIAL_SESSION','TOKEN_REFRESHED','USER_UPDATED'].includes(event)&&session?.user){
+   listGeneration++;
+   if(activeUserId&&activeUserId!==session.user.id)resetEditor();
+   // Run async auth/database calls after Supabase releases its auth callback lock.
+   clearTimeout(authReload);authReload=setTimeout(()=>loadDrafts(true),0);
+  }
+ });
 }
+signOut.onclick=async()=>{
+ signOut.disabled=true;
+ try{const {error}=await db.auth.signOut();if(error)throw error;clearTimeout(authReload);listGeneration++;resetEditor();showSignedOut();}
+ catch{status.textContent='Unable to sign out. Check your connection and try again.';}
+ finally{signOut.disabled=false;}
+};
 form.noValidate=true;
 form.onsubmit=async e=>{
  e.preventDefault();if(saving||loadingDraft||db?.previewOnly)return;
