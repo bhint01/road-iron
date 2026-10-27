@@ -1,3 +1,4 @@
+import {createAuctionGallery} from './auction-gallery.js';
 import {LIVE_API_ORIGIN} from './live-config.js';
 import { db } from './supabase-client.js';
 import { describeOutcome } from './auction-status.js';
@@ -15,7 +16,7 @@ async function load(){
  const watched=user&&!authError?await db.rpc('my_watchlist'):{data:[],error:null};
  if(current!==generation)return;
  signedIn=Boolean(user&&!authError);watchlistReady=!watched.error;saved=new Set((watched.data||[]).map(a=>a.auction_id));
- const {data,error}=await db.from('auctions').select('id,title,description,image_url,opening_bid_cents,increment_cents,starts_at,ends_at,status').eq('status','published').order('ends_at');
+ const {data,error}=await db.from('auctions').select('id,title,description,image_url,image_urls,opening_bid_cents,increment_cents,starts_at,ends_at,status').eq('status','published').order('ends_at');
  if(error){status.textContent='Unable to load auctions: '+error.message;return;}
  const loaded=await Promise.all((data||[]).map(async a=>{let delivery=null;try{if(LIVE_API_ORIGIN){const response=await fetch(LIVE_API_ORIGIN+'/listing',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({auctionId:a.id}),credentials:'omit'});if(response.ok)delivery=await response.json();}}catch{}const [summary,result]=await Promise.all([db.rpc('auction_bid_summary',{p_auction_id:a.id}),db.rpc('auction_outcome',{p_auction_id:a.id})]);return {...a,delivery,result:result.data?.[0]||null,resultError:Boolean(result.error),highest_bid_cents:summary.error?null:summary.data?.[0]?.highest_bid_cents??null,bid_count:summary.error?null:summary.data?.[0]?.bid_count??null};}));if(current!==generation)return;auctions=loaded;render();
 }
@@ -26,7 +27,7 @@ function render(){
  status.textContent=shown.length+' auction(s) found';
  for(const a of shown){
  const card=el('article','card'), content=el('div','content');
- if(a.image_url&&(/^https:\/\//.test(a.image_url)||(db.previewOnly&&a.image_url.startsWith('./')))){const img=el('img');img.src=a.image_url;img.alt=a.title;img.loading='lazy';card.append(img);}
+ const gallery=createAuctionGallery(a);if(gallery)card.append(gallery);
  const policy=document.createElement('a');policy.href='returns.html';policy.textContent='Delivery claims: 48 hours · Pickup sales final';content.append(policy);
  content.append(el('h2','',a.title),el('p','meta',a.description.slice(0,180)));
  const d=a.delivery;if(d){if(d.pickup?.enabled)content.append(el('p','meta','Pickup: '+(d.pickup.city||'')+', '+(d.pickup.state||'')+' — '+money(d.pickup.feeCents||0)));if(d.shipping?.enabled)content.append(el('p','meta','Shipping: '+money(d.shipping.amountCents)));content.append(el('p','meta','Applicable sales tax is calculated before payment.'));}else content.append(el('p','meta','Delivery setup is not complete. Bidding is unavailable.'));

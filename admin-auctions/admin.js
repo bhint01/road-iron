@@ -1,3 +1,4 @@
+import {createAuctionGallery} from './auction-gallery.js';
 import { db } from './supabase-client.js';
 import { describeOutcome } from './auction-status.js';
 
@@ -82,13 +83,8 @@ function renderAuction(auction) {
   card.append(details);
   const closed = auction.status === 'published' && Date.parse(auction.ends_at) <= Date.now();
   if (auction.result) { card.append(element('p', describeOutcome(auction.result))); return card; }
-  if (auction.image_url?.startsWith('https://')) {
-    const imageLink = element('a', 'Review seller image');
-    imageLink.href = auction.image_url;
-    imageLink.target = '_blank';
-    imageLink.rel = 'noopener noreferrer';
-    card.append(imageLink);
-  }
+  const gallery=createAuctionGallery(auction);if(gallery)card.append(gallery);
+
   if (auction.status === 'cancelled') return card;
 
   const form = element('form');

@@ -1,29 +1,18 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Seller dashboard | Road Iron Auctions</title><style>body{font:16px system-ui;background:#121b24;color:#f4f4f4;max-width:720px;margin:30px auto;padding:20px}label{display:block;margin:14px 0}input,textarea,button{font:inherit;padding:10px;width:100%;box-sizing:border-box}button{background:#c94e2d;color:white;border:0;margin-top:16px}a{color:#f8b18f}.note{color:#f1c384}</style></head><body><nav aria-label="Auction navigation"><a href="index.html">← Auctions</a> · <a href="account.html">My bids &amp; results</a> · <a href="watchlist.html">Watchlist</a></nav><h1>Seller dashboard</h1><p><a href="seller-payments.html">Set up seller payments</a></p><h2 id="draft-heading">Create an auction draft</h2><form id="form"><label>Item title<input name="title" required minlength="3" maxlength="160"></label><label>Description<textarea name="description" rows="5"></textarea></label><label>Listing photo<input id="photo" type="file" accept="image/jpeg,image/png,image/webp"></label><p>Choose a photo from your gallery. One JPG, PNG or WebP, up to 20 MB. Listing photos are public once uploaded; avoid personal information.</p><img id="photo-preview" alt="Selected listing photo" hidden style="max-width:100%;max-height:280px"><p id="photo-status" role="status"></p><label>Opening bid (USD)<input name="opening" type="number" min="1" step=".01" required></label><label>Minimum increment (USD)<input name="increment" type="number" min=".01" step=".01" value="1" required></label><label>Reserve (USD, optional)<input name="reserve" type="number" min="0" step=".01"></label><label>Start date/time<input name="starts" type="datetime-local" required></label><label>End date/time<input name="ends" type="datetime-local" required></label><button type="submit">Save draft</button><button id="cancel-edit" type="button" hidden>Cancel editing</button><p class="note" id="status" role="status" aria-live="polite" tabindex="-1">Checking sign-in…</p></form><h2>My auctions</h2><p id="draftstatus">Sign in to view your drafts.</p><div id="drafts"></div><script type="module">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Seller dashboard | Road Iron Auctions</title><style>body{font:16px system-ui;background:#121b24;color:#f4f4f4;max-width:720px;margin:30px auto;padding:20px}label{display:block;margin:14px 0}input,textarea,button{font:inherit;padding:10px;width:100%;box-sizing:border-box}button{background:#c94e2d;color:white;border:0;margin-top:16px}a{color:#f8b18f}.note{color:#f1c384} .photoTiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:12px;margin:14px 0}.photoTile{background:#1c2e2d;padding:10px;border:1px solid #405348;border-radius:8px}.photoTile img{width:100%;height:110px;object-fit:contain}.photoTile p{margin:8px 0;font-weight:bold}.photoTile button{font-size:13px;margin:5px 0 0;padding:9px;background:#eab64e;color:#17272a}.photoTile button:disabled{opacity:.5}.photoTile button:focus-visible{outline:3px solid white}</style></head><body><nav aria-label="Auction navigation"><a href="index.html">← Auctions</a> · <a href="account.html">My bids &amp; results</a> · <a href="watchlist.html">Watchlist</a></nav><h1>Seller dashboard</h1><p><a href="seller-payments.html">Set up seller payments</a></p><h2 id="draft-heading">Create an auction draft</h2><form id="form"><label>Item title<input name="title" required minlength="3" maxlength="160"></label><label>Description<textarea name="description" rows="5"></textarea></label><label>Auction photos<input id="photo" type="file" multiple accept="image/jpeg,image/png,image/webp" aria-describedby="photo-help photo-status"></label><p id="photo-help">Add up to 20 photos, up to 20 MB each. JPG, PNG or WebP. Choose several at once or add more later. The first photo is your cover. Photos are public once uploaded; avoid personal information.</p><div id="photo-previews" class="photoTiles" aria-label="Selected auction photos"></div><p id="photo-status" role="status" aria-live="polite"></p><label>Opening bid (USD)<input name="opening" type="number" min="1" step=".01" required></label><label>Minimum increment (USD)<input name="increment" type="number" min=".01" step=".01" value="1" required></label><label>Reserve (USD, optional)<input name="reserve" type="number" min="0" step=".01"></label><label>Start date/time<input name="starts" type="datetime-local" required></label><label>End date/time<input name="ends" type="datetime-local" required></label><button type="submit">Save draft</button><button id="cancel-edit" type="button" hidden>Cancel editing</button><p class="note" id="status" role="status" aria-live="polite" tabindex="-1">Checking sign-in…</p></form><h2>My auctions</h2><p id="draftstatus">Sign in to view your drafts.</p><div id="drafts"></div><script type="module">
 import { db } from './supabase-client.js';
-import { preparePhoto, uploadPhoto } from './seller-photos.js';
+import { createPhotoEditor } from './seller-gallery.js';
 const status=document.querySelector('#status'),form=document.querySelector('#form');
-const photo=document.querySelector('#photo'),preview=document.querySelector('#photo-preview'),photoStatus=document.querySelector('#photo-status');
+const photo=document.querySelector('#photo'),photoStatus=document.querySelector('#photo-status');
 const heading=document.querySelector('#draft-heading'),cancel=document.querySelector('#cancel-edit'),saveButton=form.querySelector('button[type="submit"]');
-let selectedPhoto=null,previewUrl=null,photoGeneration=0,photoBusy=false,saving=false,editing=null,loadingDraft=false,editGeneration=0,listGeneration=0,dirty=false;
+let saving=false,editing=null,loadingDraft=false,editGeneration=0,listGeneration=0,dirty=false;
+const gallery=createPhotoEditor({input:photo,holder:document.querySelector('#photo-previews'),message:photoStatus,onChange:()=>{dirty=true;}});
 const localDate=value=>{const date=new Date(value);return new Date(date.getTime()-date.getTimezoneOffset()*60000).toISOString().slice(0,16);};
-function clearPhoto(){
- photoGeneration++;selectedPhoto=null;photoBusy=false;photo.value='';preview.hidden=true;photoStatus.textContent='';
- if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}
-}
+function clearPhoto(){gallery.load();}
 function resetEditor(){
  editGeneration++;loadingDraft=false;editing=null;form.reset();clearPhoto();dirty=false;
  heading.textContent='Create an auction draft';cancel.hidden=true;saveButton.textContent='Save draft';saveButton.disabled=Boolean(db?.previewOnly);
 }
 form.addEventListener('input',()=>{dirty=true;});
-photo.onchange=async()=>{
- const generation=++photoGeneration;selectedPhoto=null;preview.hidden=true;dirty=true;
- if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}
- const file=photo.files[0];if(!file){photoBusy=false;photoStatus.textContent='';if(editing?.image_url){preview.src=editing.image_url;preview.hidden=false;}return;}
- photoBusy=true;photoStatus.textContent='Preparing photo…';
- try{const blob=await preparePhoto(file);if(generation!==photoGeneration)return;selectedPhoto=blob;previewUrl=URL.createObjectURL(blob);preview.src=previewUrl;preview.hidden=false;photoStatus.textContent='Photo ready. Save draft to upload it.';}
- catch(error){if(generation===photoGeneration)photoStatus.textContent=error.message;}
- finally{if(generation===photoGeneration)photoBusy=false;}
-};
 async function editDraft(id){
  if(saving||loadingDraft||db.previewOnly)return;
  if(dirty&&!confirm('Discard your unsaved changes and open this draft?'))return;
@@ -36,7 +25,7 @@ async function editDraft(id){
   clearPhoto();editing=draft;
   const values={title:draft.title,description:draft.description||'',opening:Number(draft.opening_bid_cents)/100,increment:Number(draft.increment_cents)/100,reserve:draft.reserve_cents===null?'':Number(draft.reserve_cents)/100,starts:localDate(draft.starts_at),ends:localDate(draft.ends_at)};
   for(const [name,value] of Object.entries(values))form.elements.namedItem(name).value=String(value);
-  if(draft.image_url&&draft.image_url.startsWith('https://')){preview.src=draft.image_url;preview.hidden=false;photoStatus.textContent='Saved photo. Choose another photo to replace it.';}
+  gallery.load(draft);
   heading.textContent='Edit auction draft';saveButton.textContent='Save changes';cancel.hidden=false;dirty=false;
   status.textContent='Draft opened. Your changes stay private until an administrator publishes the auction.';
   heading.scrollIntoView({behavior:'smooth',block:'start'});form.elements.namedItem('title').focus({preventScroll:true});
@@ -74,10 +63,9 @@ form.onsubmit=async e=>{
   const label=invalid?.closest('label')?.textContent.trim()||'Required field';
   status.textContent=label+': '+(invalid?.validationMessage||'Please check this field.');invalid?.focus();form.reportValidity();return;
  }
- if(photoBusy){status.textContent='Wait for your photo to finish preparing.';return;}
- if(photo.files.length&&!selectedPhoto){status.textContent='Choose a supported photo before saving.';return;}
+ if(gallery.busy){status.textContent='Wait for your photos to finish preparing.';return;}
  if(!db){status.textContent='Backend not configured; draft was not saved.';return;}
- saving=true;saveButton.disabled=true;saveButton.textContent='Saving…';photo.disabled=true;cancel.disabled=true;let uploaded=null,committed=false;
+ saving=true;saveButton.disabled=true;saveButton.textContent='Saving…';gallery.lock(true);cancel.disabled=true;
  try{
   status.textContent='Checking sign-in…';
   const {data:{user},error:authError}=await db.auth.getUser();
@@ -85,21 +73,22 @@ form.onsubmit=async e=>{
   if(editing&&editing.seller_id!==user.id)throw new Error('Sign in with the account that owns this draft');
   const f=new FormData(form),cents=x=>Math.round(Number(x)*100),starts=new Date(f.get('starts')),ends=new Date(f.get('ends'));
   if(!Number.isFinite(starts.getTime())||!Number.isFinite(ends.getTime())||ends<=starts)throw new Error('End time must be later than start time');
-  const payload={seller_id:user.id,title:String(f.get('title')).trim(),description:String(f.get('description')||''),image_url:editing?.image_url||null,opening_bid_cents:cents(f.get('opening')),increment_cents:cents(f.get('increment')),reserve_cents:f.get('reserve')===''?null:cents(f.get('reserve')),starts_at:starts.toISOString(),ends_at:ends.toISOString(),status:'draft'};
-  status.textContent=selectedPhoto?'Uploading photo…':'Saving draft…';
-  if(selectedPhoto){uploaded=await uploadPhoto(db,user.id,selectedPhoto);payload.image_url=uploaded.url;}
+  const payload={seller_id:user.id,title:String(f.get('title')).trim(),description:String(f.get('description')||''),opening_bid_cents:cents(f.get('opening')),increment_cents:cents(f.get('increment')),reserve_cents:f.get('reserve')===''?null:cents(f.get('reserve')),starts_at:starts.toISOString(),ends_at:ends.toISOString(),status:'draft'};
+  status.textContent='Preparing auction photos…';
+  payload.image_urls=await gallery.upload(db,user.id);payload.image_url=payload.image_urls[0]||null;
+  status.textContent='Saving draft…';
   const wasEditing=Boolean(editing);
   if(editing){
    const {seller_id,status:auctionStatus,...changes}=payload;
    const {data,error}=await db.from('auctions').update(changes).eq('id',editing.id).eq('seller_id',user.id).eq('status','draft').eq('updated_at',editing.updated_at).select('id');
    if(error)throw error;if(data?.length!==1)throw new Error('This draft changed or was published. Reopen it before saving again');
   }else{const {error}=await db.from('auctions').insert(payload);if(error)throw error;}
-  committed=true;resetEditor();status.textContent=wasEditing?'Changes saved to your draft. It is still awaiting administrator review.':'Draft saved. An auction administrator must review and schedule it before publication.';
+  resetEditor();status.textContent=wasEditing?'Changes saved to your draft. It is still awaiting administrator review.':'Draft saved. An auction administrator must review and schedule it before publication.';
   await loadDrafts();
  }catch(error){
-  if(uploaded&&!committed){try{await db.storage.from('auction-photos').remove([uploaded.path]);}catch{}}
+  // Retain uploaded photo URLs for retry. An uncertain save must never delete saved photos.
   status.textContent='Save failed: '+error.message+'. Your form is still here; please retry.';
- }finally{saving=false;saveButton.disabled=Boolean(db.previewOnly);saveButton.textContent=editing?'Save changes':'Save draft';photo.disabled=Boolean(db.previewOnly);cancel.disabled=false;}
+ }finally{saving=false;saveButton.disabled=Boolean(db.previewOnly);saveButton.textContent=editing?'Save changes':'Save draft';gallery.lock(Boolean(db.previewOnly));cancel.disabled=false;}
 };
 </script></body></html>
 
