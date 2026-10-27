@@ -18,20 +18,28 @@
     dt{color:#b7c3cd}dd{margin:0;overflow-wrap:anywhere}fieldset{border:0;padding:0;margin:20px 0 0}
     [role=status]{min-height:24px}input{max-width:100%;box-sizing:border-box}
     @media(max-width:520px){header,main{padding:18px}article{padding:18px}dl{grid-template-columns:1fr}dd{margin-bottom:8px}.actions>label{width:100%}}
-  .adminWorkspaceTabs{display:flex;gap:12px;margin:24px 0}.adminWorkspaceTabs a{display:flex;align-items:center;justify-content:center;flex:1;min-height:48px;box-sizing:border-box;padding:12px 16px;border-radius:7px;text-decoration:none;font-weight:bold;background:#2c3033;color:#eee;border:1px solid #555}.adminWorkspaceTabs a[aria-current="page"]{background:#e0a12b;color:#111;border-color:#e0a12b}.adminWorkspaceTabs a:focus-visible{outline:2px solid white;outline-offset:3px}</style>
+  .adminWorkspaceTabs{display:flex;gap:12px;margin:24px 0}.adminWorkspaceTabs a{display:flex;align-items:center;justify-content:center;flex:1;min-height:48px;box-sizing:border-box;padding:12px 16px;border-radius:7px;text-decoration:none;font-weight:bold;background:#2c3033;color:#eee;border:1px solid #555}.adminWorkspaceTabs a[aria-current="page"]{background:#e0a12b;color:#111;border-color:#e0a12b}.adminWorkspaceTabs a:focus-visible{outline:2px solid white;outline-offset:3px}.liveOperations{gap:10px;margin:0 0 18px}.liveOperations a{display:flex;align-items:center;min-height:48px;box-sizing:border-box;padding:12px 15px;background:#222b2c;border:1px solid #657263;border-radius:7px;text-decoration:none;color:#f4cf78;line-height:1.4}.liveOperations a:focus-visible,.sandboxTools summary:focus-visible{outline:3px solid #f4cf78;outline-offset:3px}.sandboxTools{margin:18px 0;color:#b7c3cd}.sandboxTools summary{cursor:pointer;min-height:44px;padding:10px 0;box-sizing:border-box}.sandboxTools a{display:inline-flex;align-items:center;min-height:44px}.notice{overflow-wrap:anywhere}@media(max-width:520px){.liveOperations{display:grid;grid-template-columns:1fr;gap:10px}.liveOperations a{width:100%;min-height:50px}}[hidden]{display:none!important}</style>
 </head>
 <body>
   <header>
     
     <h1>ROAD IRON — Admin</h1>
-    <nav class="adminWorkspaceTabs" aria-label="Administration sections"><a href="/admin.html">Store</a><a href="/admin-auctions/index.html?v=20261024b" aria-current="page">Auctions</a></nav>
+    <nav class="adminWorkspaceTabs" aria-label="Administration sections"><a href="/admin.html">Store</a><a href="/admin-auctions/index.html?v=live-status-20261027" aria-current="page">Auctions</a></nav>
     <h2>Auction administration</h2>
     <button id="signout" type="button" class="secondary" hidden>Sign out of auctions</button>
     <p class="muted">Review seller drafts and schedule approved auctions.</p>
   </header>
-  <main><p><a href="fulfillment.html">Pickup, shipping and tax setup</a></p>
-<p><a href="payments.html">Sandbox payment operations</a></p>
-    <p class="notice">Payment collection is not enabled. Approving a draft publishes its auction schedule.</p>
+  <main>
+    <nav class="liveOperations" aria-label="Live auction operations">
+      <a href="live-offer.html">Live pickup, shipping and tax setup</a>
+      <a href="live-refund.html">Live payment refunds</a>
+      <a href="seller-release.html">Seller delivery and fund release</a>
+    </nav>
+    <p id="payment-status" class="notice" role="status" aria-live="polite">Checking live payment status… Publishing a draft does not charge a buyer.</p>
+    <details class="sandboxTools"><summary>Sandbox testing — no real payments</summary>
+      <p><a href="fulfillment.html">Sandbox pickup, shipping and tax setup</a></p>
+      <p><a href="payments.html">Sandbox payment operations</a></p>
+    </details>
     <p id="status" role="status" aria-live="polite">Checking administrator access…</p>
     <button id="refresh" type="button" class="secondary">Refresh</button>
     <section id="login" hidden aria-label="Administrator sign-in">
@@ -42,8 +50,7 @@
       </form>
       <p id="loginstatus" role="status" aria-live="polite"></p>
     </section>
-    <p><a href="live-offer.html">Set auction pickup, shipping and tax</a> · <a href="live-refund.html">Payment refunds</a></p>
-    <p><a href="seller-release.html">Seller delivery and fund release</a></p><section id="queue" hidden aria-label="Auction review queue">
+<section id="queue" hidden aria-label="Auction review queue">
       <div class="toolbar">
         <label>Show auctions<select id="filter"><option value="draft">Drafts awaiting review</option><option value="published">Published</option><option value="cancelled">Cancelled</option></select></label>
         
@@ -53,6 +60,7 @@
     </section>
   </main>
   <script type="module" src="./admin.js"></script>
+  <script type="module" src="./payment-status.js?v=20261027"></script>
   
 </body>
 </html>

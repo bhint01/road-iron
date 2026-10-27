@@ -5,5 +5,5 @@
   const {error}=await db.auth.signOut({scope:'local'});if(error)throw error;
  }};
  // Preserve existing bookmarks to the Auctions section.
- if(location.hash==='#auctions')location.replace('/admin-auctions/index.html?v=20261024b');
+ if(location.hash==='#auctions')location.replace('/admin-auctions/index.html?v=live-status-20261027');
 })();
