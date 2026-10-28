@@ -41,6 +41,19 @@ async function editDraft(id){
  finally{if(generation===editGeneration){loadingDraft=false;saveButton.disabled=false;}}
 }
 cancel.onclick=()=>{if(saving)return;if(dirty&&!confirm('Discard your unsaved changes?'))return;resetEditor();status.textContent='Editing cancelled. Your saved draft has not changed.';};
+// Archived pre-launch fixtures stay in the audit records, not in the seller's current listing list.
+const archivedTestAuctionIds=new Set([
+  "1289c774-42bb-4049-b78f-5e708ec1214e",
+  "152d5c9e-a372-40ae-bed5-ad27e5e13fab",
+  "028c3b18-30bc-4fe3-a2ec-a356e88263fe",
+  "941553ea-63e2-4faf-88f9-ba45ee4a7ba2",
+  "4c103afe-fb0e-48c8-85e7-f4f493ac6c2d",
+  "93111de7-bce6-4a28-8e79-5876945d6091",
+  "9c7d3c5b-b20e-4819-8de0-c3c2f85f20ff",
+  "cdc21133-85a2-4e3a-b4a2-18f63655d2fa",
+  "fc49b6bd-7d4e-4c28-886e-1f1e3032dd35",
+  "7be66397-f19f-41b4-8524-9673e5601e53"
+]);
 async function loadDrafts(showSignInStatus=false){
  const current=++listGeneration,holder=document.querySelector('#drafts'),msg=document.querySelector('#draftstatus');holder.replaceChildren();
  let phase='auth';
@@ -53,8 +66,9 @@ async function loadDrafts(showSignInStatus=false){
   phase='list';
   const {data,error}=await db.from('auctions').select('id,title,status,starts_at,ends_at').eq('seller_id',user.id).order('created_at',{ascending:false});
   if(current!==listGeneration)return;if(error)throw error;
-  msg.textContent=(data||[]).length+' auction(s)';
-  for(const a of data||[]){
+  const visibleAuctions=(data||[]).filter(a=>!archivedTestAuctionIds.has(a.id));
+  msg.textContent=visibleAuctions.length+' auction(s)';
+  for(const a of visibleAuctions){
    const item=document.createElement('article'),label=document.createElement('p');label.textContent=a.title+' — '+a.status+' — ends '+new Date(a.ends_at).toLocaleString();item.append(label);
    if(a.status==='draft'){const edit=document.createElement('button');edit.type='button';edit.textContent='Edit draft';edit.disabled=Boolean(db.previewOnly);edit.setAttribute('aria-label','Edit draft: '+a.title);edit.onclick=()=>editDraft(a.id);item.append(edit);}
    holder.append(item);
