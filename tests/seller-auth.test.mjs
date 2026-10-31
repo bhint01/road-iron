@@ -1,0 +1,30 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync(new URL('../seller.html',import.meta.url),'utf8');
+const source=html.match(/<script>([\s\S]*)<\/script>/)[1];
+async function setup(){
+ const nodes={};let callback,active=null,failure=null,pending=null;const calls=[];
+ const node=id=>nodes[id]??={value:'',hidden:false,disabled:false,textContent:'',style:{},reportValidity(){return this.value.includes('@');}};
+ const auth={getUser:async()=>({data:{user:active}}),onAuthStateChange:fn=>callback=fn};
+ for(const name of ['signInWithPassword','signUp','resetPasswordForEmail','updateUser'])auth[name]=async(...args)=>{calls.push({name,args});if(pending)await pending;return {data:{session:null},error:failure};};
+ const context=vm.createContext({supabase:{createClient:()=>({auth})},document:{getElementById:node},location:{search:'',pathname:'/seller.html'},history:{replaceState(){}},URLSearchParams,setTimeout:fn=>fn()});
+ vm.runInContext(source,context);await new Promise(setImmediate);
+ vm.runInContext('refresh=async()=>{}',context);
+ return {nodes,node,calls,run:s=>vm.runInContext(s,context),event:e=>callback(e),user:u=>active=u,fail:e=>failure=e,wait:p=>pending=p};
+}
+let app=await setup();app.node('email').value=' seller@example.test ';app.node('password').value=' my password 123 ';
+await app.run('login()');assert.equal(app.calls[0].name,'signInWithPassword');assert.equal(app.calls[0].args[0].email,'seller@example.test');assert.equal(app.calls[0].args[0].password,' my password 123 ');assert.equal(app.node('password').value,'');
+app=await setup();app.node('email').value='seller@example.test';await app.run('resetPassword()');assert.equal(app.calls[0].name,'resetPasswordForEmail');assert.equal(app.calls[0].args[1].redirectTo,'https://road-iron.com/seller.html');assert.match(app.node('message').textContent,/If this email has an account/);
+app.event('PASSWORD_RECOVERY');assert.equal(app.run('recovering'),true);
+app.node('newPassword').value='new password 123';app.node('confirmPassword').value='different';await app.run('savePassword()');assert.equal(app.calls.length,1);assert.match(app.node('message').textContent,/do not match/);
+app.node('confirmPassword').value='new password 123';await app.run('savePassword()');assert.equal(app.calls.length,1);assert.match(app.node('message').textContent,/session expired/);
+app.user({id:'seller'});await app.run('savePassword()');assert.equal(app.calls.at(-1).name,'updateUser');assert.equal(app.node('newPassword').value,'');assert.equal(app.node('confirmPassword').value,'');assert.equal(app.run('recovering'),false);
+app=await setup();app.node('email').value='seller@example.test';app.node('password').value='short';await app.run('createAccount()');assert.equal(app.calls.length,0);
+app.node('password').value='new password 123';await app.run('createAccount()');assert.equal(app.calls[0].name,'signUp');assert.match(app.node('message').textContent,/confirm your account/);
+app=await setup();app.node('email').value='seller@example.test';app.node('password').value='password123';app.fail({message:'Invalid login credentials'});await app.run('login()');assert.match(app.node('message').textContent,/Invalid login/);assert.equal(app.node('loginBtn').disabled,false);
+let finish;app.wait(new Promise(r=>finish=r));const first=app.run('login()');await app.run('login()');assert.equal(app.calls.length,2);finish();await first;
+app.event('SIGNED_OUT');assert.equal(app.node('passwordSettings').hidden,true);assert.equal(app.node('portal').hidden,true);
+assert.ok(!source.includes('signInWithOtp'));
+new vm.Script(source);
+console.log('PASS: seller password sign-in, signup, reset redirect, recovery, password validation, expired session, errors, duplicate requests, sign-out visibility');
