@@ -1,0 +1,25 @@
+name: Repair existing storefront webhook subscriptions
+on:
+  push:
+    branches: [store-publishing-check]
+    paths: [.github/workflows/repair-webhook.yml]
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate with short-lived GitHub identity and repair required events
+        run: |
+          python - <<'PY'
+          import json,os,urllib.request,urllib.parse
+          audience='https://sblnblmcvyvmllyvrnbb.supabase.co/functions/v1/storefront-webhook-repair'
+          identity_url=os.environ['ACTIONS_ID_TOKEN_REQUEST_URL']+'&audience='+urllib.parse.quote(audience,safe='')
+          identity=urllib.request.Request(identity_url,headers={'Authorization':'Bearer '+os.environ['ACTIONS_ID_TOKEN_REQUEST_TOKEN']})
+          with urllib.request.urlopen(identity,timeout=30) as response: token=json.load(response)['value']
+          request=urllib.request.Request(audience,data=b'{}',method='POST',headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
+          with urllib.request.urlopen(request,timeout=40) as response: result=json.load(response)
+          print(json.dumps(result,sort_keys=True))
+          assert result['ok'] and result['existingEventsPreserved'] and result['signingSecretUnchanged']
+          PY
