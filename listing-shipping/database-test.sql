@@ -38,11 +38,11 @@ begin
 end $test$;
 reset role;
 do $test$
-declare s record; staged record;
+declare submission_row record; staged record;
 begin
- for s in select * from public.seller_submissions where seller_id=current_setting('roadiron.test_user')::uuid loop
-  select * into staged from public.products where id=s.staged_product_id;
-  if staged.id is null or staged.status<>'draft' or staged.shipping_type<>s.shipping_type or staged.weight_lbs is not null or staged.marketplace_commission_rate<>0.08 then raise exception 'Draft staging mismatch'; end if;
+ for submission_row in select * from public.seller_submissions where seller_id=current_setting('roadiron.test_user')::uuid loop
+  select * into staged from public.products where id=submission_row.staged_product_id;
+  if staged.id is null or staged.status<>'draft' or staged.shipping_type<>submission_row.shipping_type or staged.weight_lbs is not null or staged.marketplace_commission_rate<>0.08 then raise exception 'Draft staging mismatch'; end if;
  end loop;
  update public.marketplace_sellers set stripe_account_id='acct_rollback_fixture',stripe_charges_enabled=true,stripe_payouts_enabled=true where user_id=current_setting('roadiron.test_user')::uuid;
  if exists(select 1 from public.products where seller_id=current_setting('roadiron.test_user')::uuid and status<>'draft') then raise exception 'Private draft or launch safeguard was bypassed'; end if;
