@@ -1,0 +1,41 @@
+name: Listing draft and pickup checks
+on:
+  push:
+    branches: [listing-shipping-check]
+permissions:
+  contents: read
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Draft, pickup and ownership regression
+        env:
+          PGPASSWORD: test
+        run: |
+          psql -h localhost -U postgres -d test -v ON_ERROR_STOP=1 -f listing-shipping/bootstrap.sql
+          psql -h localhost -U postgres -d test -v ON_ERROR_STOP=1 -f listing-shipping/schema.sql
+          psql -h localhost -U postgres -d test -v ON_ERROR_STOP=1 -c 'begin' -f listing-shipping/database-test.sql -c 'rollback'
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.62.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Mobile and desktop seller drafts and pickup
+        run: python listing-shipping/browser.py
