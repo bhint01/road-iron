@@ -13,13 +13,18 @@ jobs:
       - name: Authenticate with short-lived GitHub identity and repair required events
         run: |
           python - <<'PY'
-          import json,os,urllib.request,urllib.parse
+          import json,os,urllib.request,urllib.parse,urllib.error,base64
           audience='https://sblnblmcvyvmllyvrnbb.supabase.co/functions/v1/storefront-webhook-repair'
           identity_url=os.environ['ACTIONS_ID_TOKEN_REQUEST_URL']+'&audience='+urllib.parse.quote(audience,safe='')
           identity=urllib.request.Request(identity_url,headers={'Authorization':'Bearer '+os.environ['ACTIONS_ID_TOKEN_REQUEST_TOKEN']})
           with urllib.request.urlopen(identity,timeout=30) as response: token=json.load(response)['value']
+          claims=json.loads(base64.urlsafe_b64decode(token.split('.')[1]+'==='))
+          print(json.dumps({k:claims.get(k) for k in ['iss','aud','sub','workflow_ref']},sort_keys=True))
           request=urllib.request.Request(audience,data=b'{}',method='POST',headers={'Authorization':'Bearer '+token,'Content-Type':'application/json'})
-          with urllib.request.urlopen(request,timeout=40) as response: result=json.load(response)
+          try:
+              with urllib.request.urlopen(request,timeout=40) as response: result=json.load(response)
+          except urllib.error.HTTPError as error:
+              print(error.read().decode()); raise
           print(json.dumps(result,sort_keys=True))
           assert result['ok'] and result['existingEventsPreserved'] and result['signingSecretUnchanged']
           PY
