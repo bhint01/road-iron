@@ -1,0 +1,26 @@
+name: Verify published listing draft controls
+on:
+  push:
+    branches: [listing-shipping-live-check]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify deployed seller page without writes
+        run: |
+          python - <<'PY'
+          import hashlib, urllib.request
+          url='https://road-iron.com/seller.html?v=c23097d1c04a46b41de04f57dc4ec64b280d93d8'
+          request=urllib.request.Request(url,headers={'Cache-Control':'no-cache'})
+          with urllib.request.urlopen(request,timeout=30) as response:
+              assert response.status==200
+              body=response.read()
+          assert hashlib.sha256(body).hexdigest()=='a69471a80c31a6786b8624857147cecc0d97002ad1008afc7d4dac35e9944a33'
+          text=body.decode()
+          assert 'id="draftBtn"' in text and 'onclick="submitItem(true)"' in text
+          assert "publication_requested:!saveDraft" in text
+          assert "data.shipping_type==='local_pickup'?'pickup':'shipping'" in text
+          print('PASS: deployed seller.html is exactly the tested release; private draft button and explicit pickup choice present.')
+          PY
