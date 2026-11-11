@@ -1,11 +1,11 @@
 # Seller publication release
 
-Tests passed: https://github.com/bhint01/road-iron/actions/runs/43043270285
+The seller publication schema was applied on 2026-11-11. The old single-test-product allowlist is replaced by seller, product tax, and delivery readiness checks. Existing inventory and financial records are preserved.
 
-Completed live backend repairs: stripe-webhook v16 and original checkout v13 use a verified existing live server key when the legacy secret variable contains a publishable key. Refund endpoints received the same credential-selection-only repair. Required webhook events were added to the existing destination; old events, URL and signing secret were preserved. Temporary OIDC maintenance endpoint disabled after success. No live charge, transfer, refund or seller account was created.
+Validation: mobile/desktop browser, PostgreSQL publication and ownership, and live credential selection checks passed in https://github.com/bhint01/road-iron/actions/runs/43043270285. Existing sandbox shipping, pickup, tax and refund evidence was reused without additional financial transactions.
 
-Saved sandbox shipping/pickup/refund evidence was reused rather than repeating completed financial tests. Checkout health passed on 2026-11-11 after repair.
+Live backend repairs: stripe-webhook v16 and original checkout v13 select an existing verified live server key when the legacy variable contains a publishable key. Refund endpoints use the same credential-selection repair. Required webhook events were added to the existing destination, preserving its existing events, URL and signing secret. The temporary OIDC maintenance endpoint was disabled after success. No live payment, transfer, refund or seller account was created for testing.
 
-PENDING: apply schema.sql through Supabase, then deploy this seller page, verify served hash, and set private marketplace_feature_flags seller_publication_ready=true after release checks pass. Two connector confirmations expired; no publication migration or activation occurred. Do not claim seller publishing is open yet.
+Release control: marketplace_feature_flags.seller_publication_ready is enabled only after the deployed seller page and read-only checkout health checks pass. The flag's live database value is authoritative. seller_checkout remains independently enforced.
 
-Scope: ordinary tangible parts selected and confirmed by each seller. Whole vehicles/special-tax items remain private until an appropriate classification is supported. Actual pickup location is required for pickup sales tax; no parcel measurements for pickup. Drafts remain private. Stripe account verification and delivery details remain required. Existing inventory and 8% commission are preserved.
+Scope: sellers can confirm ordinary tangible parts and accessories for the supported tax classification. Whole vehicles and special-tax items remain private until the appropriate classification is supported. Pickup requires an actual, seller-confirmed US pickup address for sales tax, without parcel measurements. Calculated shipping requires positive package measurements and a valid origin ZIP. Private drafts remain private until publication is requested. Stripe charges and payouts must be enabled for the seller; no administrator approval is required for eligible parts.
