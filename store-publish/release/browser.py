@@ -1,4 +1,5 @@
 import json
+from shutil import which
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parent
@@ -13,7 +14,7 @@ window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:window.u
  }return {data:null};},async maybeSingle(){return {data:table==='marketplace_sellers'?{status:'approved',stripe_charges_enabled:true,stripe_payouts_enabled:true}:table==='products'&&window.allowPublication?{id:'product-test'}:null};},then(resolve,reject){return Promise.resolve({data:table==='seller_submissions'?window.rows:[]}).then(resolve,reject)}};return query;
  }})};'''
 with sync_playwright() as p:
- browser=p.chromium.launch(headless=True)
+ browser=p.chromium.launch(headless=True,executable_path=which("google-chrome") or which("chromium"))
  for width in (320,390,1440):
   page=browser.new_page(viewport={'width':width,'height':900},is_mobile=width<500,has_touch=width<500)
   errors=[];page.on('pageerror',lambda e:errors.append(str(e)))

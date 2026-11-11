@@ -2,6 +2,7 @@ name: Seller publishing release checks
 on:
   push:
     branches: [store-publishing-check]
+    paths: [store-publish/release/**, .github/workflows/store-publish.yml]
 permissions:
   contents: read
 jobs:
@@ -33,7 +34,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install playwright==1.62.0
-      - run: python -m playwright install --with-deps chromium
+      - run: google-chrome --version
       - run: python store-publish/release/browser.py
   credentials:
     runs-on: ubuntu-latest
