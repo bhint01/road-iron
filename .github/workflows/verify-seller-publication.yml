@@ -1,0 +1,40 @@
+name: Verify live seller publication release
+on:
+  push:
+    branches: [seller-publication-live-check]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify live page and payment boundaries without financial transactions
+        run: |
+          python - <<'PY'
+          import hashlib,json,time,urllib.request,urllib.error
+          release='78d9e66b604e909071169e1636823d86b00c0354'
+          url='https://road-iron.com/seller.html?v='+release
+          for attempt in range(12):
+              with urllib.request.urlopen(urllib.request.Request(url,headers={'Cache-Control':'no-cache'}),timeout=30) as response: body=response.read()
+              if hashlib.sha256(body).hexdigest()=='07c9a56046f7573846199183b7a550dd0932d0ff05ad2b7de2a98ef0bbbf650b': break
+              if attempt==11: raise AssertionError('Tested seller page not yet served')
+              time.sleep(5)
+          text=body.decode()
+          for marker in ['id="draftBtn"','id="taxCategory"','id="pickupConfirmed"','id="pickupLine1"','publication_requested:!saveDraft']: assert marker in text,marker
+          base='https://sblnblmcvyvmllyvrnbb.supabase.co/functions/v1/'
+          with urllib.request.urlopen(base+'marketplace-create-checkout/health',timeout=50) as response: health=json.load(response)
+          print('Live readiness:',json.dumps({'ready':health['ready'],'checks':health['checks'],'blockers':health['blockers']},sort_keys=True))
+          assert health['ready'],health['blockers']
+          def rejected(path,expected,headers=None):
+              request=urllib.request.Request(base+path,data=b'{"items":[]}',method='POST',headers={'Content-Type':'application/json',**(headers or {})})
+              try:
+                  with urllib.request.urlopen(request,timeout=30) as response: status=response.status
+              except urllib.error.HTTPError as error: status=error.code
+              assert status==expected,(path,status,expected)
+          rejected('stripe-webhook',400)
+          rejected('marketplace-admin-refund',401)
+          rejected('marketplace-full-refund',401)
+          rejected('create-checkout-session',400,{'Origin':'https://road-iron.com'})
+          rejected('marketplace-create-checkout',400,{'Origin':'https://road-iron.com'})
+          print('PASS: tested seller page is live; checkout account/tax/webhook readiness verified; unsigned webhook, unauthenticated refunds and empty carts rejected. No payment created.')
+          PY
