@@ -84,3 +84,7 @@ Purpose: Source of truth for completed work, verification and remaining work. Ch
 - Owner reports the preceding password setup worked. This does not establish every registration and recovery path as verified.
 - Added a labeled Show password checkbox to sign-in, registration and password settings. It reveals both password and confirmation fields and can hide them again. Passwords start concealed; successful submissions and sign-out conceal them again. The control is hidden on the email-only reset request screen.
 - Existing isolated authentication regression checks and JavaScript syntax check pass. An isolated UI behavior check verified showing/hiding without changing typed values across account modes and concealing after sign-out. Real mobile rendering of the checkbox remains unverified.
+
+## Admin seller review duplicate display — 2026-11-19
+- Fixed overlapping review-list loads appending repeated cards after asynchronous photo retrieval. Each load now builds a detached fragment; only the newest request may replace the visible list. No listing or payment records are changed.
+- Regression checks reproduce three simultaneous loads and a stale photo response completing after a newer render, verify one listing card and matching count, and verify retry after an error. All three Node test files pass. Real signed-in phone verification remains pending.
